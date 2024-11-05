@@ -1,0 +1,35 @@
+.footer-image {
+    position: absolute ;
+    bottom: 5.55rem;
+    right: 0;
+}
+
+.footer-bg-image{
+    width: 90%;
+}
+
+.footer-content{
+    z-index: 1000000;
+}
+
+.footer-heart {
+    color: red;
+}
+
+@media (max-width: 440px) {
+    /* Reset all margins to 0 */
+    .footer-image {
+      bottom: 6.5rem;
+    }
+
+    .footer-below-text{
+        font-size: 7px;
+    }
+  }
+
+@media (max-width: 768px) {
+    .footer-below-text{
+        font-size: 10px;
+    }
+    
+}

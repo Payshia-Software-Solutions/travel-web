@@ -1,0 +1,82 @@
+.home-banner-main {
+  position: relative;
+}
+
+.banner-img {
+  width: 110rem;
+}
+
+.blue-div {
+  position: absolute;
+  bottom: 0.1rem;
+  left: 50%;
+}
+
+.bluediv-icons {
+  margin-right: 0.1rem;
+}
+
+.vl {
+  border-left: 2px solid #5a7ba8;
+  height: 1.3rem;
+  margin: 0 0.5rem;
+}
+
+.package-info {
+  background-color: #06377b;
+  position: absolute;
+  color: white;
+  padding: 0.6rem 0.5rem;
+}
+
+.bluediv-text {
+  font-size: 0.9rem;
+}
+
+.bottom-button-icon {
+  color: #06377b;
+}
+
+.rtr-vl {
+  border-left: 2px solid #ebebeb;
+  height: 2.5rem;
+  margin: 0 0.5rem;
+}
+
+.image-overlay {
+  background: #00000098;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 20;
+  /* Lower than the grid's z-index */
+}
+
+#banner-button {
+  background-color: #06377b;
+  border-color: #06377b;
+}
+
+#btn-color {
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+#banner-button:hover {
+  background-color: #0a3e86;
+  color: #ffffff;
+}
+
+@media screen and (min-width: 768px) {
+  .package-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .lg\:h-custom {
+    height: 40rem;
+  }
+}

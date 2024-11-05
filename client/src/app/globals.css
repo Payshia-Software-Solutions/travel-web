@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import Google Fonts */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+:root {
+    --background-color: #ffffff;
+    /* White color for background */
+    --main-font-family: Inter, sans-serif;
+}
+
+.content-container {
+    background-color: var(--background-color);
+    font-family: var(--main-font-family);
+    margin: 0 4.5rem 2rem 4.5rem;
+}
+
+.btn-color {
+    border-color: #06377B;
+    color: #06377B;
+    border-radius: 0;
+}
+
+.btn-color:hover {
+    background-color: #06377B;
+    color: #ffffff;
+}
+
+@media (max-width: 440px) {
+    /* Reset all margins to 0 */
+    .content-container {
+        margin: 0 1.5rem 0.5rem 1.5rem;
+    }
+}

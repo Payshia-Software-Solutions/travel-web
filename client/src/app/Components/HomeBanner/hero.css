@@ -1,0 +1,9 @@
+.banner-buttons .btn-primary {
+    background-color: #010305;
+    border-color: #060c13;
+}
+
+.banner-buttons .btn-outline-primary {
+    color: #007bff;
+    border-color: #007bff;
+}

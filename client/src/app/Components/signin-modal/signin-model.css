@@ -1,0 +1,134 @@
+.custom-modal-body {
+  padding: 0;
+  border-radius: 0px;
+}
+
+.right-div {
+  display: flex;
+  justify-content: center;
+  align-items: center; /* Center content vertically */
+  color: #fff;
+}
+
+.login-right {
+  width: 80rem;
+}
+
+.have-acc {
+  font-size: 0.85rem;
+}
+
+.social-google-btn {
+  background-color: #fff;
+  color: #000;
+  border: 1px solid #fff;
+  padding: 8px 65px;
+  margin: 10px 0;
+  cursor: pointer;
+  transition: 0.3s;
+  border-radius: 10px;
+  margin: 1rem 0 0.5rem;
+}
+
+.social-icon-fb {
+  color: #3b5998;
+}
+
+.social-facebook-btn {
+  background-color: #fff;
+  color: #000;
+  border: 1px solid #fff;
+  padding: 8px 55px;
+  margin: 10px 0;
+  cursor: pointer;
+  transition: 0.3s;
+  border-radius: 10px;
+  margin: 0 0 3rem 0;
+}
+
+.right-div-text {
+  bottom: 0;
+}
+
+.left-div {
+  padding: 2rem;
+}
+
+.login-logo {
+  width: 40%;
+}
+
+.close-btn-div {
+  right: -1rem;
+  top: -1rem;
+}
+
+.close-btn {
+  background-color: black;
+  border-radius: 50px;
+  font-size: 35px;
+  color: white;
+}
+
+.rem-icon {
+  color: #06377b;
+  font-size: 20px;
+}
+
+.signin-btn {
+  background-color: #06377b;
+  color: #fff;
+  border: 1px solid #06377b;
+  padding: 8px 35px;
+  margin: 10px 0;
+  cursor: pointer;
+  transition: 0.3s;
+  border-radius: 0px;
+}
+
+.bottom-text {
+  font-size: 0.7rem;
+  opacity: 0.6;
+  margin-top: 1rem;
+}
+
+.bottom-text-color {
+  color: #06377b;
+  opacity: 1;
+}
+
+/* ===================== Mobile Responsive ===================== */
+@media (max-width: 768px) {
+  .modal-content {
+    margin: 20px; /* Add margin to the outside of the modal */
+    width: calc(100% - 40px); /* Reduce the width of the modal */
+  }
+
+  .main-form {
+    flex-direction: column; /* Change flex direction to column for smaller screens */
+  }
+
+  .right-div {
+    order: -1; /* Move the right div to the top */
+  }
+
+  .login-right {
+    height: 20rem;
+    object-fit: cover;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .main-form {
+    flex-direction: column; /* Change flex direction to column for smaller screens */
+  }
+
+  .right-div {
+    order: -1; /* Move the right div to the top */
+  }
+
+  .login-right {
+    height: 20rem;
+    object-fit: cover;
+  }
+}

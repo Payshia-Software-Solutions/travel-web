@@ -10,6 +10,7 @@ const BookingController = require("../controllers/BookingController");
 const VehicleController = require("../controllers/VehicleController");
 const BlogController = require("../controllers/BlogController");
 const AgentController = require("../controllers/AgentController");
+const GetQuoteController = require("../controllers/GetQuoteController");
 
 // Tour routes
 router.post("/tours", TourController.createTour);
@@ -80,5 +81,14 @@ router.get("/agents", AgentController.getAgents); // Get all agents
 router.get("/agents/:id", AgentController.getAgentById); // Get a single agent by ID
 router.put("/agents/:id", AgentController.updateAgent); // Update an existing agent
 router.delete("/agents/:id", AgentController.deleteAgent); // Delete an agent
+
+
+
+// Quote routes
+router.post("/quotes", GetQuoteController.createQuote);
+router.get("/quotes", GetQuoteController.getQuotes);
+router.get("/quotes/:id", GetQuoteController.getQuoteById);
+router.put("/quotes/:id", GetQuoteController.updateQuote);
+router.delete("/quotes/:id", GetQuoteController.deleteQuote);
 
 module.exports = router;

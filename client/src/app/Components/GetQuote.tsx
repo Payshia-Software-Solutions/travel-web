@@ -4,173 +4,114 @@ import { FaCalendarAlt } from "react-icons/fa";
 
 function GetQuote() {
   return (
-    <div className="bg-white border border-blue-700 p-4 w-full mt-5 rounded-lg">
+    <div className="bg-white border border-blue-700 p-6 w-full mt-8 rounded-xl shadow-lg">
       {/* Personal Details Section */}
-      <div className="mb-4">
+      <h2 className="text-xl font-semibold text-blue-700 mb-4">Personal Details</h2>
+      <div className="space-y-4">
         <input
-          className="w-full border border-gray-300 p-2 rounded"
+          className="w-full border border-gray-300 p-3 rounded-lg focus:border-blue-500"
           type="text"
-          placeholder="Name:"
+          placeholder="Name"
         />
-      </div>
-      <div className="mb-4">
         <input
-          className="w-full border border-gray-300 p-2 rounded"
+          className="w-full border border-gray-300 p-3 rounded-lg focus:border-blue-500"
           type="email"
-          placeholder="Email:"
+          placeholder="Email"
         />
-      </div>
-      <div className="mb-4">
-        <label className="block text-gray-700 text-sm mb-1">Mobile:</label>
-        <div className="flex">
-          <div className="flex items-center border border-gray-300 p-2 rounded-l bg-gray-100">
-            <img
-              alt="Country flag"
-              className="mr-2"
-              src="https://placehold.co/20x20"
+        <div>
+          <label className="block text-gray-600 mb-2">Mobile:</label>
+          <div className="flex">
+            <div className="flex items-center border border-gray-300 p-3 rounded-l-lg bg-gray-100">
+              <img
+                alt="Country flag"
+                className="mr-2"
+                src="https://placehold.co/20x20"
+              />
+              <span>+1</span>
+            </div>
+            <input
+              className="w-full border border-gray-300 p-3 rounded-r-lg focus:border-blue-500"
+              type="text"
+              placeholder="0000000000"
             />
-            <span>+1</span>
           </div>
-          <input
-            className="w-full border border-gray-300 p-2 rounded-r"
-            type="text"
-            placeholder="0000000000"
-          />
         </div>
-      </div>
-      <div className="mb-4">
-        <label className="block text-black text-md my-1 font-bold">
-          Living Country:
-        </label>
-        <select className="w-full border border-gray-300 p-2 rounded">
-          <option className="opacity-25">Australia</option>
-        </select>
-      </div>
-      <div className="mb-4">
-        <label className="block text-black text-md my-1 font-bold">
-          Nationality:
-        </label>
-        <select className="w-full border border-gray-300 p-2 rounded">
-          <option>--</option>
-        </select>
+        <div>
+          <label className="block text-gray-600 mb-2">Living Country:</label>
+          <select className="w-full border border-gray-300 p-3 rounded-lg focus:border-blue-500">
+            <option>Australia</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-gray-600 mb-2">Nationality:</label>
+          <select className="w-full border border-gray-300 p-3 rounded-lg focus:border-blue-500">
+            <option>--</option>
+          </select>
+        </div>
       </div>
 
       {/* Tour Details Section */}
-      <div>
-        <div className="bg-blue-800 w-[calc(100%+3rem)] -mx-6 my-4">
-          <h2 className="text-white text-2xl font-bold p-2">Tour Details</h2>
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700 text-md my-1 font-bold">
-            Destination:
-          </label>
-          <select className="w-full border border-gray-300 p-2 rounded">
+      <h2 className="text-xl font-semibold text-blue-700 mt-8 mb-4">Tour Details</h2>
+      <div className="space-y-4">
+        <div>
+          <label className="block text-gray-600 mb-2">Destination:</label>
+          <select className="w-full border border-gray-300 p-3 rounded-lg focus:border-blue-500">
             <option>Select Tour Country</option>
           </select>
         </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700 text-md my-1 font-bold">
-            Arrival Date:
-          </label>
+        <div>
+          <label className="block text-gray-600 mb-2">Arrival Date:</label>
           <div className="relative">
             <input
-              className="w-full border border-gray-300 p-2 rounded"
+              className="w-full border border-gray-300 p-3 rounded-lg focus:border-blue-500"
               type="text"
               placeholder="Select Arrival Date"
             />
-            {/* Replace <i> with FaCalendarAlt */}
-            <FaCalendarAlt className="absolute right-2 top-3 text-gray-500" />
+            <FaCalendarAlt className="absolute right-3 top-3 text-gray-400" />
           </div>
         </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700 text-md my-1 font-bold">
-            Departure Date
-          </label>
+        <div>
+          <label className="block text-gray-600 mb-2">Departure Date:</label>
           <div className="relative">
             <input
-              className="w-full border border-gray-300 p-2 rounded"
+              className="w-full border border-gray-300 p-3 rounded-lg focus:border-blue-500"
               type="text"
               placeholder="Select Departure Date"
             />
-            {/* Replace <i> with FaCalendarAlt */}
-            <FaCalendarAlt className="absolute right-2 top-3 text-gray-500" />
+            <FaCalendarAlt className="absolute right-3 top-3 text-gray-400" />
           </div>
         </div>
       </div>
 
       {/* Package Details Section */}
-      <div className="bg-blue-800 w-[calc(100%+3rem)] -mx-6 my-4">
-        <h2 className="text-white text-2xl font-bold p-2">Package Details</h2>
-      </div>
-
-      {/* Platinum Package (Selected) */}
-      <div className="mb-4 bg bg-gray-100 rounded p-2">
-        <h3 className="text-blue-600 font-bold">
-          Platinum <span className="float-right">Selected</span>
-        </h3>
-        <textarea
-          className="w-full p-2 rounded mt-2 bg-gray-100 resize-none" // Add resize-none
-          rows={3}
-        ></textarea>
-      </div>
-
-      {/* Gold Package */}
-      <div className="mb-4 bg bg-gray-100 rounded p-2">
-        <h3 className="text-gray-600 font-bold">Gold</h3>
-        <textarea
-          className="w-full p-2 rounded mt-2 bg-gray-100 resize-none" // Add resize-none
-          rows={3}
-        ></textarea>
-      </div>
-
-      {/* Silver Package */}
-      <div className="mb-4 bg bg-gray-100 rounded p-2">
-        <h3 className="text-gray-600 font-bold">Silver</h3>
-        <textarea
-          className="w-full p-2 rounded mt-2 bg-gray-100 resize-none" // Add resize-none
-          rows={3}
-        ></textarea>
-      </div>
-
-      {/* Another Silver Package */}
-      <div className="mb-4 bg bg-gray-100 rounded p-2">
-        <h3 className="text-gray-600 font-bold">Silver</h3>
-        <textarea
-          className="w-full p-2 rounded mt-2 bg-gray-100 resize-none" // Add resize-none
-          rows={3}
-        ></textarea>
-      </div>
-
-      {/* Participants & Total */}
-      <div className="flex justify-between items-center mb-4 font-bold">
-        <span className="text-gray-700">Participants</span>
+      <h2 className="text-xl font-semibold text-blue-700 mt-8 mb-4">Package Details</h2>
+      <div className="space-y-2">
         <div className="flex items-center">
-          <span className="text-gray-700 mr-2">4</span>
-          <button className="text-gray-500 border border-gray-300 p-2 rounded">
-            +
-          </button>
-          <button className="text-gray-500 border border-gray-300 p-2 rounded ml-2">
-            -
-          </button>
+          <input type="radio" id="silver" name="package" value="silver" className="mr-2" />
+          <label htmlFor="silver" className="text-gray-600">Silver</label>
+        </div>
+        <div className="flex items-center">
+          <input type="radio" id="gold" name="package" value="gold" className="mr-2" />
+          <label htmlFor="gold" className="text-gray-600">Gold</label>
+        </div>
+        <div className="flex items-center">
+          <input type="radio" id="platinum" name="package" value="platinum" className="mr-2" />
+          <label htmlFor="platinum" className="text-gray-600">Platinum</label>
         </div>
       </div>
 
-      <div className="flex justify-between items-center mb-4 font-bold">
-        <span className="text-gray-700">Total</span>
-        <span className="text-black font-bold">$15000</span>
+      {/* Total Price */}
+      <div className="flex justify-between items-center my-6 font-bold text-lg text-gray-700">
+        <span>Total</span>
+        <span className="text-black">$15,000</span>
       </div>
 
       {/* Action Buttons */}
-      <div className="flex justify-between mt-4">
-        <button className="bg-blue-600 text-white p-1 rounded-sm w-1/2 mr-2 flex items-center justify-center">
+      <div className="flex justify-between mt-6">
+        <button className="bg-blue-600 text-white p-3 rounded-lg  w-full mr-3 flex items-center justify-center">
           Book Now <AiOutlineArrowRight className="ml-2" />
         </button>
-        <button className="border border-blue-600 text-blue-600 p-1 rounded-sm w-1/2 flex items-center justify-center">
-          Wishlist <AiOutlineHeart className="ml-2" />
-        </button>
+      
       </div>
     </div>
   );

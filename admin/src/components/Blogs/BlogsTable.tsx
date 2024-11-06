@@ -172,7 +172,7 @@ const BlogsTable = () => {
                     >
                       <FaEye />
                     </button>
-
+                    {/*update button */}
                     <button
                       className="btn btn-info mx-1"
                       onClick={() => handleEdit(item._id)}

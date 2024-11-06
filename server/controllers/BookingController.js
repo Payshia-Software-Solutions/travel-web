@@ -1,116 +1,144 @@
 const Booking = require("../models/Booking");
+const moment = require("moment");
 
-// @desc Create a booking
-// @route POST /api/bookings
-// @access Public
-exports.createBooking = async (req, res) => {
-  try {
-    const { bookedDateTime, tourId, payableAmount, createdBy } = req.body;
+// Create a new booking
+const createBooking = async (req, res) => {
+    try {
+        const {
+            name,
+            email,
+            mobile,
+            livingCountry,
+            nationality,
+            destination,
+            arrivalDate,
+            departureDate,
+            packageType,
+            totalPrice
+        } = req.body;
 
-    if (!bookedDateTime || !tourId || !payableAmount || !createdBy) {
-      return res
-        .status(400)
-        .json({ msg: "Please include all required fields" });
+        // Ensure required fields are present
+        const requiredFields = ["name", "email", "mobile", "livingCountry", "destination", "arrivalDate", "departureDate", "packageType", "totalPrice"];
+        const missingFields = requiredFields.filter(field => !req.body[field]);
+
+        if (missingFields.length > 0) {
+            return res.status(400).json({ message: "Missing required fields", missingFields });
+        }
+
+        // Validate arrivalDate and departureDate formats
+        if (!moment(arrivalDate, moment.ISO_8601, true).isValid() || !moment(departureDate, moment.ISO_8601, true).isValid()) {
+            return res.status(400).json({ message: "Invalid date format for arrival or departure" });
+        }
+
+        // Create new booking entry
+        const newBooking = new Booking({
+            name,
+            email,
+            mobile,
+            livingCountry,
+            nationality,
+            destination,
+            arrivalDate,
+            departureDate,
+            packageType,
+            totalPrice
+        });
+
+        await newBooking.save();
+        res.status(201).json(newBooking);
+    } catch (error) {
+        console.error("Error creating booking:", error.message);
+        res.status(500).json({ message: "Server error" });
     }
-
-    const newBooking = new Booking({
-      bookedDateTime,
-      tourId,
-      payableAmount,
-      createdBy,
-    });
-
-    const booking = await newBooking.save();
-    res.json(booking);
-  } catch (err) {
-    console.error("Server Error:", err.message);
-    res.status(500).send("Server Error");
-  }
 };
 
-// @desc Get all bookings
-// @route GET /api/bookings
-// @access Public
-exports.getBookings = async (req, res) => {
-  try {
-    const bookings = await Booking.find();
-    res.json(bookings);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server Error");
-  }
+// Retrieve all bookings
+const getAllBookings = async (req, res) => {
+    try {
+        const bookings = await Booking.find();
+        res.status(200).json(bookings);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+    }
 };
 
-// @desc Get booking by ID
-// @route GET /api/bookings/:id
-// @access Public
-exports.getBookingById = async (req, res) => {
-  try {
-    const booking = await Booking.findById(req.params.id);
-    if (!booking) {
-      return res.status(404).json({ msg: "Booking not found" });
+// Retrieve a single booking by ID
+const getBookingById = async (req, res) => {
+    try {
+        const booking = await Booking.findById(req.params.id);
+        if (!booking) {
+            return res.status(404).json({ message: "Booking not found" });
+        }
+        res.status(200).json(booking);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
     }
-    res.json(booking);
-  } catch (err) {
-    console.error(err.message);
-    if (err.kind === "ObjectId") {
-      return res.status(404).json({ msg: "Booking not found" });
-    }
-    res.status(500).send("Server Error");
-  }
 };
 
-// @desc Update a booking
-// @route PUT /api/bookings/:id
-// @access Public
-exports.updateBooking = async (req, res) => {
-  try {
-    const { bookedDateTime, tourId, payableAmount, updatedBy } = req.body;
+// Update a booking by ID
+const updateBooking = async (req, res) => {
+    try {
+        const {
+            name,
+            email,
+            mobile,
+            livingCountry,
+            nationality,
+            destination,
+            arrivalDate,
+            departureDate,
+            packageType,
+            totalPrice
+        } = req.body;
 
-    const updatedBooking = await Booking.findByIdAndUpdate(
-      req.params.id,
-      {
-        bookedDateTime,
-        tour,
-        Id,
-        payableAmount,
-        updatedBy,
-        updatedAt: Date.now(),
-      },
-      { new: true }
-    );
+        const updatedBooking = await Booking.findByIdAndUpdate(
+            req.params.id,
+            {
+                name,
+                email,
+                mobile,
+                livingCountry,
+                nationality,
+                destination,
+                arrivalDate,
+                departureDate,
+                packageType,
+                totalPrice
+            },
+            { new: true }
+        );
 
-    if (!updatedBooking) {
-      return res.status(404).json({ msg: "Booking not found" });
+        if (!updatedBooking) {
+            return res.status(404).json({ message: "Booking not found" });
+        }
+
+        res.status(200).json(updatedBooking);
+    } catch (error) {
+        console.error("Error updating booking:", error.message);
+        res.status(500).json({ message: "Server error" });
     }
-
-    res.json(updatedBooking);
-  } catch (err) {
-    console.error(err.message);
-    if (err.kind === "ObjectId") {
-      return res.status(404).json({ msg: "Booking not found" });
-    }
-    res.status(500).send("Server Error");
-  }
 };
 
-// @desc Delete a booking
-// @route DELETE /api/bookings/:id
-// @access Public
-exports.deleteBooking = async (req, res) => {
-  try {
-    const booking = await Booking.findByIdAndDelete(req.params.id);
-
-    if (!booking) {
-      return res.status(404).json({ msg: "Booking not found" });
+// Delete a booking by ID
+const deleteBooking = async (req, res) => {
+    try {
+        const deletedBooking = await Booking.findByIdAndDelete(req.params.id);
+        if (!deletedBooking) {
+            return res.status(404).json({ message: "Booking not found" });
+        }
+        res.status(200).json({ message: "Booking deleted successfully" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
     }
+};
 
-    res.json({ msg: "Booking removed" });
-  } catch (err) {
-    console.error(err.message);
-    if (err.kind === "ObjectId") {
-      return res.status(404).json({ msg: "Booking not found" });
-    }
-    res.status(500).send("Server Error");
-  }
+module.exports = {
+    createBooking,
+    getAllBookings,
+    getBookingById,
+    updateBooking,
+    deleteBooking,
 };

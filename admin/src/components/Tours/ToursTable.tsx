@@ -34,8 +34,23 @@ const ToursTable = () => {
         }
         return response.json();
       })
-      .then((data) => setTours(data))
-      .catch((error) => console.error("Error fetching tours:", error));
+      .then((data) => {
+        console.log("Fetched data:", data);
+        
+        // Check if data is an array directly or nested within an object
+        if (Array.isArray(data)) {
+          setTours(data);
+        } else if (data && Array.isArray(data.tours)) {
+          setTours(data.tours);
+        } else {
+          console.error("Unexpected data format:", data);
+          setTours([]); // Set empty array if data format is not as expected
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching tours:", error);
+        toast.error("Failed to fetch tours.");
+      });
   };
 
   useEffect(() => {
@@ -111,25 +126,17 @@ const ToursTable = () => {
         pageName="Tours"
         pageDesc="Find out the status of your bookings"
         btnName="+ Create Tour"
-        onClick={() => setShowCreateForm(true)}
+        onClick={() => setShowCreateForm(true)} // Opens the Create Tour Form
       />
 
       <SideModel
-        isOpen={showCreateForm}
-        onClose={() => {
-          setShowCreateForm(false);
-          setEditMode(false);
-          setSelectedTourData(null);
-        }}
+        isOpen={showCreateForm} // Controls whether the form is open
+        onClose={() => setShowCreateForm(false)} // Closes the form
       >
-        <TourForms
-          onTourCreated={handleTourCreated}
-          tourData={selectedTourData}
+        <CreateTourForm
+          onTourCreated={handleTourCreated} // Pass a function to handle tour creation
+          tourData={selectedTourData} // Pass tour data if editing, or null if creating new
         />
-      </SideModel>
-
-      <SideModel isOpen={showTourInfo} onClose={() => setShowTourInfo(false)}>
-        {selectedTourId && <TourInfo tourId={selectedTourId} />}
       </SideModel>
 
       <div className="rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
@@ -160,7 +167,7 @@ const ToursTable = () => {
             <tbody>
               {tours.map((tour, index) => (
                 <tr key={tour._id}>
-                  <td className="border-b border-[#eee] px-4 py-5  dark:border-strokedark xl:pl-11">
+                  <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark xl:pl-11">
                     <h5 className="font-medium text-black dark:text-white">
                       {index + 1}
                     </h5>

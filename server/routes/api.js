@@ -13,8 +13,10 @@ const AgentController = require("../controllers/AgentController");
 const GetQuoteController = require("../controllers/GetQuoteController");
 
 // Tour routes
+
+// Tour routes
 router.post("/tours", TourController.createTour);
-router.get("/tours", TourController.getTours);
+router.get("/tours", TourController.getAllTours);
 router.get("/tours/:id", TourController.getTourById);
 router.put("/tours/:id", TourController.updateTour);
 router.delete("/tours/:id", TourController.deleteTour);

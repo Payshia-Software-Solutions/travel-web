@@ -3,6 +3,7 @@ import { Metadata } from "next";
 
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import ToursTable from "@/components/Tours/ToursTable";
+import CreateTourForm from "@/components/Tours/createTourForm";
 
 export const metadata: Metadata = {
   title: "Tours | Admin Dashboard",
@@ -13,6 +14,7 @@ const page = () => {
   return (
     <DefaultLayout>
       <ToursTable />
+     
     </DefaultLayout>
   );
 };

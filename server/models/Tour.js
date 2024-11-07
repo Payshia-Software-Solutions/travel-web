@@ -1,36 +1,32 @@
 const mongoose = require("mongoose");
-const commonFields = require("./CommonFields.js");
-
 const { Schema, model } = mongoose;
 
-// Define the TourSchedule schema
-const tourScheduleSchema = new Schema({
-  dayId: { type: Number },
-  dayTitle: { type: String },
-  dayPlan: { type: String },
+const TourScheduleSchema = new Schema({
+  dayId: { type: Number, required: true },
+  dayTitle: { type: String, required: true },
+  dayPlan: { type: String, required: true },
 });
 
-// Define the Tour schema
-const tourSchema = new Schema(
-  {
-    tourId: { type: String, required: true, unique: true },
-    tourName: { type: String, required: true },
-    highlightText: { type: String },
-    tourDetails: { type: String },
-    tourPrice: { type: Number, required: true },
-    participants: { type: Number },
-    tourCover: { type: String },
-    tourGallery: { type: [String] },
-    noOfDays: { type: Number, required: true },
-    aboutCover: { type: String },
-    tags: { type: [String] },
-    basePlace: { type: [String] },
-    tourSchedule: [tourScheduleSchema],
-    tourCategory: { type: Schema.Types.ObjectId, ref: "TourCategory" },
-    inclusions: { type: [String], default: [] },
-    ...commonFields,
-  },
-  { timestamps: true }
-);
+const TourSchema = new Schema({
+  inclusions: { type: [String], default: [] },
+  tourId: { type: String, required: true },
+  tourName: { type: String, required: true },
+  highlightText: { type: String, required: true },
+  tourDetails: { type: String, required: true },
+  tourPrice: { type: Number, required: true },
+  participants: { type: Number, required: true },
+  tourCover: { type: String, required: true },
+  tourGallery: { type: [String], default: [""] },
+  noOfDays: { type: Number, required: true },
+  aboutCover: { type: String, default: "" },
+  tags: { type: [String], default: [] },
+  basePlace: { type: [String], default: [] },
+  tourSchedule: { type: [TourScheduleSchema], default: [] },
+  tourCategory: { type: Schema.Types.ObjectId, ref: "Category", required: true },
+  createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  updatedBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  isActive: { type: Boolean, default: true },
+}, { timestamps: true });
 
-module.exports = model("Tour", tourSchema);
+// Export the Tour model
+module.exports = model("Tour", TourSchema);

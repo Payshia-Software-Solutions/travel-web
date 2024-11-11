@@ -1,52 +1,40 @@
 "use client";
-import { useState, ChangeEvent, FormEvent } from "react";
+import { useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import config from "@/config";
+
 import FloatingLabelInput from "../Input";
 
 function CreateTourForm() {
-  const [showDayPlan, setShowDayPlan] = useState(false);
-
-  // Initialize the form data with a default day plan
   const [formData, setFormData] = useState({
-    name: "",
+    tourName: "",
     highlightText: "",
     category: "",
-    tags: [], // Initialize tags as an array
-    participants: 0,
-    tourPrice: 0,
-    noOfDays: 0,
+    tags: "",
+    participants: "",
+    tourPrice: "",
+    noOfDays: "",
     tourDetails: "",
-    dayPlans: [{ dayId: "", dayTitle: "", dayPlan: "" }], // Initialize with a default day plan
+    dayPlans: [],
+    tourCover: null // Add tourCover to the state
   });
 
-
-
-
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-    }
-  };
-  // Handle form field changes
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
-
-    if (name === 'tags') {
-      // Split tags by comma and trim spaces, update as an array
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: value.split(',').map((tag) => tag.trim()),
-      }));
-    } else {
-      setFormData((prevData) => ({ ...prevData, [name]: value }));
-    }
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
-  // Add new day plan to the form
+  const handleFileChange = (e) => {
+    const { files } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      tourCover: files[0] || null,
+    }));
+  };
+
   const handleAddDayPlanClick = () => {
     setFormData((prevData) => ({
       ...prevData,
@@ -57,53 +45,81 @@ function CreateTourForm() {
     }));
   };
 
-  // Handle changes in day plan fields
-  const handleDayPlanChange = (
-    index: number,
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleDayPlanChange = (index, e) => {
     const { name, value } = e.target;
     const updatedDayPlans = [...formData.dayPlans];
-    updatedDayPlans[index] = { ...updatedDayPlans[index], [name]: value };
+    updatedDayPlans[index][name] = value;
 
-    setFormData((prevData) => ({ ...prevData, dayPlans: updatedDayPlans }));
+    setFormData((prevData) => ({
+      ...prevData,
+      dayPlans: updatedDayPlans,
+    }));
   };
 
-  // Handle form submission
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const data = new FormData();
-    for (const key in formData) {
-      if (Array.isArray(formData[key])) {
-        formData[key].forEach((item) => data.append(key, item));
-      } else {
-        data.append(key, formData[key as keyof typeof formData]);
-      }
+    console.log(formData);
+
+    if (!formData.tourCover) {
+      toast.error("Tour Cover is required.");
+      return;
     }
-    if (imageFile) {
-      data.append("tourCover", imageFile);
-    }
+
+    const formDataObj = new FormData();
+    formDataObj.append("tourName", formData.tourName);
+    formDataObj.append("highlightText", formData.highlightText);
+    formDataObj.append("tourDetails", formData.tourDetails);
+    formDataObj.append("tourPrice", formData.tourPrice);
+    formDataObj.append("participants", formData.participants);
+    formDataObj.append("noOfDays", formData.noOfDays);
+
+    formData.dayPlans.forEach((dayPlan, index) => {
+      formDataObj.append(`dayPlans[${index}][dayId]`, dayPlan.dayId);
+      formDataObj.append(`dayPlans[${index}][dayTitle]`, dayPlan.dayTitle);
+      formDataObj.append(`dayPlans[${index}][dayPlan]`, dayPlan.dayPlan);
+    });
+
+    formDataObj.append("tags", formData.tags.split(",").map(tag => tag.trim()));
+
+    // Handle file upload for tourCover
+    // if (formData.tourCover) {
+    //   formDataObj.append("tourCover", formData.tourCover);
+    // }
+
+    const createdBy = "66ae7fe4a9498f09f37f01cc";
+    formDataObj.append("createdBy", createdBy);
+
+    formDataObj.append("tourCategory", formData.category);
 
     try {
-      const response = await fetch(`http://localhost:5000/api/tours`, {
+      const response = await fetch("http://localhost:5000/api/tours", {
         method: "POST",
-        body: data,
+        body: formDataObj,
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();  // Get response text
-        
-        console.error("Server Response Error:", errorText);
-        toast.error(`Error creating tour: ${errorText}`);
+      if (response.ok) {
+        toast.success("Tour created successfully!");
+        setFormData({
+          tourName: "",
+          highlightText: "",
+          category: "",
+          tags: "",
+          participants: "",
+          tourPrice: "",
+          noOfDays: "",
+          tourDetails: "",
+          dayPlans: [],
+          tourCover: null, // Reset tourCover
+        });
       } else {
-        toast.success("Tour created successfully");
+        const errorData = await response.json();
+        console.error("Error response:", errorData);
+        throw new Error(errorData.message || "Failed to create tour");
       }
     } catch (error) {
-      console.error("Error creating tour:", error);
-      toast.error("Error creating tour. See console for more details.");
+      toast.error("Error: " + error.message);
     }
   };
-  
 
   return (
     <div>
@@ -113,51 +129,48 @@ function CreateTourForm() {
           <p>Fill all required fields</p>
         </div>
 
-        <form className="space-y-6" onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Information Fields */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <FloatingLabelInput
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleInputChange}
-              placeholder="Tour Name"
+              id="tourName"
+              name="tourName"
+              value={formData.tourName}
+              onChange={handleChange}
+              placeholder="tourName"
             />
             <FloatingLabelInput
               id="highlightText"
               name="highlightText"
               value={formData.highlightText}
-              onChange={handleInputChange}
+              onChange={handleChange}
               placeholder="Highlight Text"
             />
             <FloatingLabelInput
               id="category"
               name="category"
               value={formData.category}
-              onChange={handleInputChange}
+              onChange={handleChange}
               placeholder="Category"
             />
           </div>
 
           {/* Tags, Cover, Participants, etc. */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-2">
-            <FloatingLabelInput
-              id="tags"
-              name="tags"
-              value={formData.tags.join(', ')} // Convert tags array to comma-separated string
-              onChange={handleInputChange}
-              placeholder="Tags (comma-separated)"
-            />
-          </div>
-          <div className="relative">
-              <label htmlFor="cover">Cover</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                className="text-gray-500 w-full text-sm file:mr-4 file:rounded-md file:border-0 file:bg-blue-500 file:px-4 file:py-2 file:text-white hover:file:bg-blue-600"
-              />
-            </div>
+          <FloatingLabelInput
+            id="tags"
+            name="tags"
+            value={formData.tags}
+            onChange={handleChange}
+            placeholder="Tags (comma-separated)"
+          />
+
+          <input
+            type="file"
+            name="tourCover"
+            accept="image/*"
+            onChange={handleFileChange}
+            className="mb-4"
+          />
 
           {/* Numeric Fields */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
@@ -165,46 +178,44 @@ function CreateTourForm() {
               id="participants"
               name="participants"
               type="number"
-              value={formData.participants.toString()}
-              onChange={handleInputChange}
+              value={formData.participants}
+              onChange={handleChange}
               placeholder="Participants"
             />
             <FloatingLabelInput
               id="tourPrice"
               name="tourPrice"
               type="number"
-              value={formData.tourPrice.toString()}
-              onChange={handleInputChange}
+              value={formData.tourPrice}
+              onChange={handleChange}
               placeholder="Tour Price"
             />
             <FloatingLabelInput
               id="noOfDays"
               name="noOfDays"
               type="number"
-              value={formData.noOfDays.toString()}
-              onChange={handleInputChange}
+              value={formData.noOfDays}
+              onChange={handleChange}
               placeholder="No of Days"
             />
           </div>
 
           {/* Text Area for Tour Details */}
-          <div className="relative">
-            <textarea
-              className="text-md peer w-full rounded-lg border-2 border-stroke bg-transparent p-3 font-bold focus:border-blue-500 focus:outline-none focus:ring-0"
-              placeholder=" "
-              id="tourDetails"
-              name="tourDetails"
-              rows={5}
-              value={formData.tourDetails}
-              onChange={handleInputChange}
-            />
-            <label
-              htmlFor="tourDetails"
-              className="peer-focus:text-gray-600 absolute left-3 top-3 z-10 origin-[0] -translate-y-6 scale-75 transform bg-white px-2 text-sm font-bold text-black duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:px-2 peer-focus:text-sm"
-            >
-              Tour Details
-            </label>
-          </div>
+          <textarea
+            className="text-md peer w-full rounded-lg border-2 border-stroke bg-transparent p-3 font-bold focus:border-blue-500 focus:outline-none focus:ring-0"
+            placeholder=" "
+            id="tourDetails"
+            name="tourDetails"
+            rows={5}
+            value={formData.tourDetails}
+            onChange={handleChange}
+          />
+          <label
+            htmlFor="tourDetails"
+            className="peer-focus:text-gray-600 absolute left-3 top-3 z-10 origin-[0] -translate-y-6 scale-75 transform bg-white px-2 text-sm font-bold text-black duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:px-2 peer-focus:text-sm"
+          >
+            Tour Details
+          </label>
 
           {/* Day Plans Section */}
           <button
@@ -244,14 +255,14 @@ function CreateTourForm() {
           <div className="mt-4 flex justify-end">
             <button
               type="submit"
-              className="inline-block w-full rounded-lg bg-black px-5 py-3 font-medium text-white sm:w-auto"
+              className="inline-block w-full rounded-lg bg-black px-5 py-3 font-medium text-white"
             >
-              Save Tour
+              Create Tour
             </button>
           </div>
         </form>
-        <ToastContainer />
       </div>
+      <ToastContainer />
     </div>
   );
 }

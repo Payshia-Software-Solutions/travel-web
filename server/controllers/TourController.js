@@ -1,58 +1,151 @@
 const Tour = require("../models/Tour");
+const moment = require("moment");
 
-// Create a new tour
+
+const multer = require("multer");
+const upload = multer({ dest: "uploads/" }); // You can adjust the storage configuration
+
 const createTour = async (req, res) => {
     try {
-        const {
-            inclusions,
-            tourId,
-            tourName,
-            highlightText,
-            tourDetails,
-            tourPrice,
-            participants,
-            tourCover,
-            tourGallery,
-            noOfDays,
-            aboutCover,
-            tags,
-            basePlace,
-            tourSchedule,
-            tourCategory,
-            createdBy,
-            updatedBy,
-            isActive
-        } = req.body;
+        // Use multer to handle file uploads
+        upload.single('tourCover')(req, res, async (err) => {
 
-        // Create new tour entry
-        const newTour = new Tour({
-            inclusions,
-            tourId,
-            tourName,
-            highlightText,
-            tourDetails,
-            tourPrice,
-            participants,
-            tourCover,
-            tourGallery,
-            noOfDays,
-            aboutCover,
-            tags,
-            basePlace,
-            tourSchedule,
-            tourCategory,
-            createdBy,
-            updatedBy,
-            isActive
+            if (err) {
+                return res.status(400).json({ message: "Error uploading file" });
+            }
+
+            const FixedCreatedBy = "66ae7fe4a9498f09f37f01cc";
+            const FixedUpdatedBy = "66ae7fe4a9498f09f37f01cc";
+
+            const {
+                inclusions,
+                dayPlans,
+                tourId = "1143" ,
+                tourName,
+                tourCover,
+                highlightText,
+                tourDetails,
+                tourPrice,
+                participants,
+                tourGallery,
+                noOfDays,
+                aboutCover,
+                tags,
+                basePlace,
+                tourSchedule,
+                tourCategory,
+                createdBy = FixedCreatedBy,
+                updatedBy = FixedUpdatedBy,
+                isActive
+            } = req.body;
+
+            // Ensure required fields are present
+            const requiredFields = [ "tourName", "highlightText", "tourDetails", "tourPrice", "participants",  "noOfDays", "tourCategory", "createdBy"];
+            const missingFields = requiredFields.filter(field => !req.body[field]);
+
+            if (missingFields.length > 0) {
+                return res.status(400).json({ message: "Missing required fields", missingFields });
+            }
+
+            // Create new tour entry
+            const newTour = new Tour({
+                inclusions,
+                dayPlans,
+                tourId,
+                tourName,
+                highlightText,
+                tourDetails,
+                tourPrice,
+                participants,
+                tourCover , // Storing file path
+                tourGallery, // Assuming tourGallery is handled similarly
+                noOfDays,
+                aboutCover,
+                tags,
+                basePlace,
+                tourSchedule,
+                tourCategory,
+                createdBy,
+                updatedBy,
+                isActive
+            });
+
+            await newTour.save();
+            res.status(201).json(newTour);
         });
-
-        await newTour.save();
-        res.status(201).json(newTour);
     } catch (error) {
         console.error("Error creating tour:", error.message);
         res.status(500).json({ message: "Server error" });
     }
 };
+
+
+// Create a new tour
+// const createTour = async (req, res) => {
+//     try {
+//         const {
+//             inclusions,
+//             dayPlans,
+//             tourId,
+//             tourName,
+//             highlightText,
+//             tourDetails,
+//             tourPrice,
+//             participants,
+//             tourCover,
+//             tourGallery,
+//             noOfDays,
+//             aboutCover,
+//             tags,
+//             basePlace,
+//             tourSchedule,
+//             tourCategory,
+//             createdBy,
+//             updatedBy,
+//             isActive
+//         } = req.body;
+//         console.log(req.body)
+
+//         // Ensure required fields are present
+//         const requiredFields = ["tourId", "tourName", "highlightText", "tourDetails", "tourPrice", "participants", "tourCover", "noOfDays", "tourCategory", "createdBy"];
+//         const missingFields = requiredFields.filter(field => !req.body[field]);
+
+
+//         if (missingFields.length > 0) {
+//             return res.status(400).json({ message: "Missing required fields", missingFields });
+//         }
+
+//         // Create new tour entry
+//         const newTour = new Tour({
+//             inclusions,
+//             dayPlans,
+//             tourId,
+//             tourName,
+//             highlightText,
+//             tourDetails,
+//             tourPrice,
+//             participants,
+//             tourCover,
+//             tourGallery,
+//             noOfDays,
+//             aboutCover,
+//             tags,
+//             basePlace,
+//             tourSchedule,
+//             tourCategory,
+//             createdBy,
+//             updatedBy,
+//             isActive
+//         });
+
+//         await newTour.save();
+//         res.status(201).json(newTour);
+//     } catch (error) {
+//         console.error("Error creating tour:", error.message);
+//         res.status(500).json({ message: "Server error" });
+//     }
+// };
+
 
 // Retrieve all tours
 const getAllTours = async (req, res) => {
@@ -84,6 +177,7 @@ const updateTour = async (req, res) => {
     try {
         const {
             inclusions,
+            dayPlans,
             tourId,
             tourName,
             highlightText,
@@ -107,6 +201,7 @@ const updateTour = async (req, res) => {
             req.params.id,
             {
                 inclusions,
+                dayPlans,
                 tourId,
                 tourName,
                 highlightText,

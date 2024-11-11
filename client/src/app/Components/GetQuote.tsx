@@ -33,6 +33,8 @@ function GetQuote() {
         body: JSON.stringify(formData),
       });
 
+      console.log(response);
+
       if (response.ok) {
         alert("Booking created successfully!");
       } else {
@@ -124,10 +126,13 @@ function GetQuote() {
             value={formData.destination}
             onChange={handleChange}
           >
-            <option className="" value="sri lanka"> Sri Lanka </option>
-            <option  value="india">India </option>
-            <option  value="Pakisthan">Pakisthan </option>
-            <option  value="Sri Lanka ">Sri Lanka </option>
+            <option className="" value="sri lanka">
+              {" "}
+              Sri Lanka{" "}
+            </option>
+            <option value="india">India </option>
+            <option value="Pakisthan">Pakisthan </option>
+            <option value="Sri Lanka ">Sri Lanka </option>
 
             {/* Add more destination options here */}
           </select>

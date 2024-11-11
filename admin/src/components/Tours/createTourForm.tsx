@@ -8,6 +8,7 @@ import FloatingLabelInput from "../Input";
 function CreateTourForm() {
   const [formData, setFormData] = useState({
     tourName: "",
+    inclusions: "",
     highlightText: "",
     category: "",
     tags: "",
@@ -67,6 +68,7 @@ function CreateTourForm() {
 
     const formDataObj = new FormData();
     formDataObj.append("tourName", formData.tourName);
+    formDataObj.append("inclusions",formData.inclusions)
     formDataObj.append("highlightText", formData.highlightText);
     formDataObj.append("tourDetails", formData.tourDetails);
     formDataObj.append("tourPrice", formData.tourPrice);
@@ -101,6 +103,7 @@ function CreateTourForm() {
         toast.success("Tour created successfully!");
         setFormData({
           tourName: "",
+          inclusions: "",
           highlightText: "",
           category: "",
           tags: "",
@@ -131,6 +134,13 @@ function CreateTourForm() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Information Fields */}
+          <FloatingLabelInput
+              id="inclusions"
+              name="inclusions"
+              value={formData.inclusions}
+              onChange={handleChange}
+              placeholder="inclusions"
+            />
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <FloatingLabelInput
               id="tourName"

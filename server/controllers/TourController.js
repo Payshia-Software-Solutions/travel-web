@@ -1,15 +1,12 @@
 const Tour = require("../models/Tour");
 const moment = require("moment");
-
-
 const multer = require("multer");
-const upload = multer({ dest: "uploads/" }); // You can adjust the storage configuration
+const upload = multer({ dest: "uploads/" });
 
 const createTour = async (req, res) => {
     try {
         // Use multer to handle file uploads
         upload.single('tourCover')(req, res, async (err) => {
-
             if (err) {
                 return res.status(400).json({ message: "Error uploading file" });
             }
@@ -20,13 +17,12 @@ const createTour = async (req, res) => {
             const {
                 inclusions,
                 dayPlans,
-                tourId = "1143" ,
                 tourName,
-                tourCover,
                 highlightText,
                 tourDetails,
                 tourPrice,
                 participants,
+                tourCover,
                 tourGallery,
                 noOfDays,
                 aboutCover,
@@ -34,39 +30,41 @@ const createTour = async (req, res) => {
                 basePlace,
                 tourSchedule,
                 tourCategory,
-                createdBy = FixedCreatedBy,
-                updatedBy = FixedUpdatedBy,
                 isActive
             } = req.body;
 
             // Ensure required fields are present
-            const requiredFields = [ "tourName", "highlightText", "tourDetails", "tourPrice", "participants",  "noOfDays", "tourCategory", "createdBy"];
+            const requiredFields = ["tourName", "highlightText", "tourDetails", "tourPrice", "participants", "noOfDays", "tourCategory", "createdBy"];
             const missingFields = requiredFields.filter(field => !req.body[field]);
 
             if (missingFields.length > 0) {
                 return res.status(400).json({ message: "Missing required fields", missingFields });
             }
 
+            // Generate unique tour ID based on the dataset count
+            const tourCount = await Tour.countDocuments();
+            const tourId = `TOUR-${tourCount + 1}`;
+
             // Create new tour entry
             const newTour = new Tour({
+                tourId,
                 inclusions,
                 dayPlans,
-                tourId,
                 tourName,
                 highlightText,
                 tourDetails,
                 tourPrice,
                 participants,
-                tourCover , // Storing file path
-                tourGallery, // Assuming tourGallery is handled similarly
+                tourCover,
+                tourGallery,
                 noOfDays,
                 aboutCover,
                 tags,
                 basePlace,
                 tourSchedule,
                 tourCategory,
-                createdBy,
-                updatedBy,
+                createdBy: FixedCreatedBy,
+                updatedBy: FixedUpdatedBy,
                 isActive
             });
 
@@ -78,8 +76,6 @@ const createTour = async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 };
-
-
 // Create a new tour
 // const createTour = async (req, res) => {
 //     try {

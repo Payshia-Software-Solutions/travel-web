@@ -2,16 +2,17 @@
 import { useState, useEffect } from "react";
 import Breadcrumb from "../Breadcrumbs/Breadcrumb";
 import { Tour } from "@/types/tours";
-import CreateTourForm from "./createTourForm"; // Ensure this is correct
-import TourForms from "./TourForms"; // Ensure this is correct
+import CreateTourForm from "./createTourForm";
 import SideModel from "../Modal/SideModel";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FaEye, FaPencilAlt, FaTrash } from "react-icons/fa";
-import config from "@/config"; // Adjust the import path as necessary
+import config from "@/config";
 import TourInfo from "./TourInfo";
+import CreateInclusion from "./CreateInclusion"; // Import Inclusion component
 import Swal from "sweetalert2";
 import "./styles.css";
+import { FaI } from "react-icons/fa6";
 
 const ToursTable = () => {
   const formatter = new Intl.NumberFormat("en-US", {
@@ -21,6 +22,7 @@ const ToursTable = () => {
 
   const [tours, setTours] = useState<Tour[]>([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showInclusionForm, setShowInclusionForm] = useState(false);
   const [showTourInfo, setShowTourInfo] = useState(false);
   const [selectedTourId, setSelectedTourId] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
@@ -35,17 +37,7 @@ const ToursTable = () => {
         return response.json();
       })
       .then((data) => {
-        console.log("Fetched data:", data);
-        
-        // Check if data is an array directly or nested within an object
-        if (Array.isArray(data)) {
-          setTours(data);
-        } else if (data && Array.isArray(data.tours)) {
-          setTours(data.tours);
-        } else {
-          console.error("Unexpected data format:", data);
-          setTours([]); // Set empty array if data format is not as expected
-        }
+        setTours(Array.isArray(data) ? data : data.tours || []);
       })
       .catch((error) => {
         console.error("Error fetching tours:", error);
@@ -89,7 +81,7 @@ const ToursTable = () => {
               `${config.API_BASE_URL}/api/tours/${tourId}`,
               {
                 method: "DELETE",
-              },
+              }
             );
 
             if (!response.ok) {
@@ -107,10 +99,16 @@ const ToursTable = () => {
     }
   };
 
+  const handleShowInclusion = (tourId: string) => {
+    console.log("Selected Tour ID:", tourId);
+    setSelectedTourId(tourId);
+    setShowInclusionForm(true);
+  };
+
   const handleTourCreated = (newTour: Tour) => {
     if (editMode) {
       setTours((prevTours) =>
-        prevTours.map((tour) => (tour._id === newTour._id ? newTour : tour)),
+        prevTours.map((tour) => (tour._id === newTour._id ? newTour : tour))
       );
     } else {
       setTours((prevTours) => [...prevTours, newTour]);
@@ -126,17 +124,19 @@ const ToursTable = () => {
         pageName="Tours"
         pageDesc="Find out the status of your bookings"
         btnName="+ Create Tour"
-        onClick={() => setShowCreateForm(true)} // Opens the Create Tour Form
+        onClick={() => setShowCreateForm(true)}
       />
 
-      <SideModel
-        isOpen={showCreateForm} // Controls whether the form is open
-        onClose={() => setShowCreateForm(false)} // Closes the form
-      >
+      <SideModel isOpen={showCreateForm} onClose={() => setShowCreateForm(false)}>
         <CreateTourForm
-          onTourCreated={handleTourCreated} // Pass a function to handle tour creation
-          tourData={selectedTourData} // Pass tour data if editing, or null if creating new
+          onTourCreated={handleTourCreated}
+          tourData={selectedTourData}
         />
+      </SideModel>
+
+      <SideModel isOpen={showInclusionForm} onClose={() => setShowInclusionForm(false)}>
+        
+        <CreateInclusion tourId={selectedTourId}  /> {/* Pass selectedTourId */}
       </SideModel>
 
       <div className="rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
@@ -144,74 +144,47 @@ const ToursTable = () => {
           <table className="w-full table-auto">
             <thead>
               <tr className="bg-gray-2 text-left dark:bg-meta-4">
-                <th className="min-w-[150px] px-4 py-4 font-medium text-black dark:text-white xl:pl-11">
-                  #
-                </th>
-                <th className="min-w-[150px] px-4 py-4 font-medium text-black dark:text-white">
-                  Tour Name
-                </th>
-                <th className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white">
-                  Participants
-                </th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">
-                  Price
-                </th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">
-                  Days
-                </th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">
-                  Action
-                </th>
+                <th className="min-w-[150px] px-4 py-4 font-medium text-black dark:text-white xl:pl-11">#</th>
+                <th className="min-w-[150px] px-4 py-4 font-medium text-black dark:text-white">Tour Name</th>
+                <th className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white">Participants</th>
+                <th className="px-4 py-4 font-medium text-black dark:text-white">Price</th>
+                <th className="px-4 py-4 font-medium text-black dark:text-white">Days</th>
+                <th className="px-4 py-4 font-medium text-black dark:text-white">Action</th>
               </tr>
             </thead>
             <tbody>
               {tours.map((tour, index) => (
                 <tr key={tour._id}>
                   <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark xl:pl-11">
-                    <h5 className="font-medium text-black dark:text-white">
-                      {index + 1}
-                    </h5>
+                    <h5 className="font-medium text-black dark:text-white">{index + 1}</h5>
                   </td>
                   <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                    <p className="text-black dark:text-white">
-                      {tour.tourName}
-                    </p>
+                    <p className="text-black dark:text-white">{tour.tourName}</p>
                   </td>
                   <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                    <p className="text-black dark:text-white">
-                      {tour.participants}
-                    </p>
+                    <p className="text-black dark:text-white">{tour.participants}</p>
                   </td>
                   <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                    <p className="text-black dark:text-white">
-                      {formatter.format(tour.tourPrice)}
-                    </p>
+                    <p className="text-black dark:text-white">{formatter.format(tour.tourPrice)}</p>
                   </td>
                   <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                    <p className="text-black dark:text-white">
-                      {tour.noOfDays}
-                    </p>
+                    <p className="text-black dark:text-white">{tour.noOfDays}</p>
                   </td>
                   <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                    <button
-                      className="btn btn-info mx-1"
-                      onClick={() => handleShowTourInfo(tour._id)}
-                    >
+                    <button className="btn btn-info mx-1" onClick={() => handleShowTourInfo(tour._id)}>
                       <FaEye />
                     </button>
-
-                    <button
-                      className="btn btn-info mx-1"
-                      onClick={() => handleEditTour(tour._id)}
-                    >
+                    <button className="btn btn-info mx-1" onClick={() => handleEditTour(tour._id)}>
                       <FaPencilAlt />
                     </button>
-
+                    <button className="btn btn-info mx-1" onClick={() => handleDeleteTour(tour._id)}>
+                      <FaTrash />
+                    </button>
                     <button
                       className="btn btn-info mx-1"
-                      onClick={() => handleDeleteTour(tour._id)}
+                      onClick={() => handleShowInclusion(tour._id)} // Toggles Inclusion form with tourId
                     >
-                      <FaTrash />
+                      <FaI />
                     </button>
                   </td>
                 </tr>

@@ -6,6 +6,7 @@ import {
   FaArrowRight,
   FaHeart,
   FaStar,
+  FaTrash,
   FaMapMarkedAlt,
   FaCalendarMinus,
   FaRegHeart,

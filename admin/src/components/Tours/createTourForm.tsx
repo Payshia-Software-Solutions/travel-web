@@ -17,7 +17,7 @@ function CreateTourForm() {
     noOfDays: "",
     tourDetails: "",
     dayPlans: [],
-    tourCover: null // Add tourCover to the state
+    tourCover: "" // Add tourCover to the state
   });
 
   const handleChange = (e) => {
@@ -112,7 +112,7 @@ function CreateTourForm() {
           noOfDays: "",
           tourDetails: "",
           dayPlans: [],
-          tourCover: null, // Reset tourCover
+          tourCover: "", // Reset tourCover
         });
       } else {
         const errorData = await response.json();

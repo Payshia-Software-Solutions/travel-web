@@ -54,7 +54,7 @@ const SingleTour = async ({ params }) => {
         </div>
 
         <div>
-          <ClientComponent />
+        <ClientComponent url="http://localhost:5000" />
         </div>
       </div>
     );

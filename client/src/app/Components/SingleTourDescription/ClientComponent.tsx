@@ -13,8 +13,13 @@ import {
 } from "react-icons/fa";
 import SectionTitle from "../../Components/section-title/section-title";
 
-const ClientComponent = () => {
+function ClientComponent({ inclusions,tour }) {
   const [activeTab, setActiveTab] = useState("itinerary");
+  const [selectedPackage, setSelectedPackage] = useState(null);
+
+  const handlePackageClick = (packageType) => {
+    setSelectedPackage(packageType === selectedPackage ? null : packageType);
+  };
 
   return (
     <div className="">
@@ -287,37 +292,45 @@ const ClientComponent = () => {
             </div>
           )}
           {activeTab === "inclusions" && (
-            <div>
-              {/* Inclusions content here */}
-              <div>
-                <div className="w-full text-black text-[30px] font-bold font-['Noto Sans JP'] capitalize leading-[50px]">
-                  Inclutions
-                </div>
-
-                <div className="grid grid-cols-4 gap-4">
-                  <button className="bg-gray-800 text-white hover:bg-gray-500  rounded-lg shadow-md p-4">
-                    <h2 className="text-3xl font-bold">Platinum</h2>
-                  </button>
-                  <button className="bg-gray-800 text-white hover:bg-gray-500  rounded-lg shadow-md p-4">
-                    <h2 className="text-3xl font-bold">Gold</h2>
-                  </button>
-                  <button className="bg-gray-800 text-white hover:bg-gray-500  rounded-lg shadow-md p-4">
-                    <h2 className="text-3xl font-bold">Silver</h2>
-                  </button>
-
-                  <button className="bg-gray-800 text-white hover:bg-gray-500  rounded-lg shadow-md p-4">
-                    <h2 className="text-3xl font-bold">Bronze</h2>
-                  </button>
-                </div>
-                <div className="mt-5">
-                  <li>Test</li>
-                  <li>Test</li>
-                  <li>Test</li>
-                  <li>Test</li>
-                  <li>Test</li>
-                </div>
-              </div>
-            </div>
+           <div className="bg-gray-100 rounded-2xl p-4">
+           {/* Inclusions content here */}
+           <h2 className="text-4xl my-6 text-black font-bold">Inclusions</h2>
+           <div className="grid grid-cols-4 gap-4" >
+             {["gold","platinum",  "silver", "bronze"].map((packageType) => (
+               <button
+                 key={packageType}
+                 onClick={() => handlePackageClick(packageType)}
+                 className={`bg-gray-800 text-white hover:bg-blue-600 rounded-lg shadow-md p-4 ${
+                   selectedPackage === packageType ? "active" : ""
+                 }`}
+               >
+                 {packageType.charAt(0).toUpperCase() + packageType.slice(1)}
+               </button>
+             ))}
+           </div>
+         
+           {selectedPackage && (
+             <div style={{ marginTop: "1rem" }}>
+               <h3 className="text-2xl font-semibold my-4">
+                 {selectedPackage.charAt(0).toUpperCase() + selectedPackage.slice(1)}{" "}
+                 Package
+               </h3>
+               <div className="p-4">
+                 <ul className="text-xl">
+                   {inclusions
+                     .filter((inclusion) => inclusion.packageType === selectedPackage)
+                     .flatMap((inclusion) => inclusion.inclusions)
+                     .map((item, index) => (
+                       <li className="list-disc" key={index}>
+                         {item.replace(/['"]+/g, "")}
+                       </li>
+                     ))}
+                 </ul>
+               </div>
+             </div>
+           )}
+         </div>
+         
           )}
           {activeTab === "summary" && (
             <div>
@@ -394,6 +407,6 @@ const ClientComponent = () => {
       </div>
     </div>
   );
-};
+}
 
 export default ClientComponent;

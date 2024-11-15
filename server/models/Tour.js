@@ -12,7 +12,7 @@ const DayPlanSchema = new Schema(
 
 const TourSchema = new Schema(
   {
-    inclusions: { type: [String], required: true },
+   
     dayPlans: { type: [DayPlanSchema], default: [] },
     tourId: { type: String, required: true },
     tourName: { type: String, required: true },

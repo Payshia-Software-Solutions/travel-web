@@ -15,7 +15,7 @@ const createTour = async (req, res) => {
             const FixedUpdatedBy = "66ae7fe4a9498f09f37f01cc";
 
             const {
-                inclusions,
+               
                 dayPlans,
                 tourName,
                 highlightText,
@@ -48,7 +48,7 @@ const createTour = async (req, res) => {
             // Create new tour entry
             const newTour = new Tour({
                 tourId,
-                inclusions,
+            
                 dayPlans,
                 tourName,
                 highlightText,
@@ -172,7 +172,7 @@ const getTourById = async (req, res) => {
 const updateTour = async (req, res) => {
     try {
         const {
-            inclusions,
+           
             dayPlans,
             tourId,
             tourName,
@@ -196,7 +196,7 @@ const updateTour = async (req, res) => {
         const updatedTour = await Tour.findByIdAndUpdate(
             req.params.id,
             {
-                inclusions,
+           
                 dayPlans,
                 tourId,
                 tourName,

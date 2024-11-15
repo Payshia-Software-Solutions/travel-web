@@ -7,6 +7,8 @@ import "./blogs.css";
 import config from "../../config";
 import { FaArrowRight, FaRegHeart } from "react-icons/fa";
 
+
+
 interface Blog {
   _id: string;
   title: string;

@@ -7,6 +7,7 @@ import { FaEye, FaPencilAlt, FaTrash } from "react-icons/fa";
 function CreateInclusion({ tourId }) {
   const [selectedOption, setSelectedOption] = useState("");
   const [tourDetails, setTourDetails] = useState("");
+  const [price, setPrice] = useState(""); // State for price
   const [inclusionsList, setInclusionsList] = useState([]);
 
   useEffect(() => {
@@ -25,8 +26,10 @@ function CreateInclusion({ tourId }) {
             );
             if (inclusion) {
               setTourDetails(inclusion.inclusions.join("\n"));
+              setPrice(inclusion.price || ""); // Populate price if available
             } else {
               setTourDetails("");
+              setPrice("");
             }
           } else {
             toast.error(result.error || "Failed to fetch inclusions.");
@@ -47,9 +50,9 @@ function CreateInclusion({ tourId }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!selectedOption || !tourDetails || !tourId) {
+    if (!selectedOption || !tourDetails || !price || !tourId) {
       toast.error(
-        "Please select a package type, enter tour details, and ensure tour ID is provided.",
+        "Please select a package type, enter tour details, provide a price, and ensure tour ID is provided.",
       );
       return;
     }
@@ -64,6 +67,7 @@ function CreateInclusion({ tourId }) {
           tourId,
           packageType: selectedOption.toLowerCase(),
           inclusions: tourDetails.split("\n").map((item) => item.trim()), // Split by new lines
+          price: parseFloat(price), // Convert price to a number
         }),
       });
 
@@ -75,11 +79,16 @@ function CreateInclusion({ tourId }) {
         // Add the new inclusion to the list
         setInclusionsList((prevList) => [
           ...prevList,
-          { packageType: selectedOption, inclusions: tourDetails },
+          {
+            packageType: selectedOption,
+            inclusions: tourDetails,
+            price: parseFloat(price), // Display price
+          },
         ]);
 
         setSelectedOption("");
         setTourDetails("");
+        setPrice("");
       } else {
         toast.error(result.error || "Failed to create inclusion.");
       }
@@ -114,23 +123,45 @@ function CreateInclusion({ tourId }) {
         </div>
 
         {selectedOption && (
-          <div className="mt-4">
-            <label
-              htmlFor="tourDetails"
-              className="block text-sm font-bold text-black"
-            >
-              Tour Details for {selectedOption}
-            </label>
-            <textarea
-              className="text-md peer w-full rounded-lg border-2 border-stroke bg-transparent p-3 font-bold focus:border-blue-500 focus:outline-none focus:ring-0"
-              placeholder="Enter each inclusion on a new line"
-              id="tourDetails"
-              name="tourDetails"
-              rows={6}
-              value={tourDetails}
-              onChange={(e) => setTourDetails(e.target.value)}
-            />
-          </div>
+          <>
+            <div className="mt-4">
+              <label
+                htmlFor="tourDetails"
+                className="block text-sm font-bold text-black"
+              >
+                Tour Details for {selectedOption}
+              </label>
+              <textarea
+                className="text-md peer w-full rounded-lg border-2 border-stroke bg-transparent p-3 font-bold focus:border-blue-500 focus:outline-none focus:ring-0"
+                placeholder="Enter each inclusion on a new line"
+                id="tourDetails"
+                name="tourDetails"
+                rows={6}
+                value={tourDetails}
+                onChange={(e) => setTourDetails(e.target.value)}
+              />
+            </div>
+
+            <div className="mt-4">
+              <label
+                htmlFor="price"
+                className="block text-sm font-bold text-black"
+              >
+                Price
+              </label>
+              <input
+                type="number"
+                className="text-md peer w-full rounded-lg border-2 border-stroke bg-transparent p-3 font-bold focus:border-blue-500 focus:outline-none focus:ring-0"
+                placeholder="Enter price"
+                id="price"
+                name="price"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                min="0"
+                step="0.01"
+              />
+            </div>
+          </>
         )}
 
         <div className="mt-4 flex justify-end gap-4 p-1">
@@ -141,7 +172,7 @@ function CreateInclusion({ tourId }) {
           >
             Submit
           </button>
-          {/*deleate button */}
+          {/*delete button*/}
           <button className="inline-block w-24 rounded-lg bg-red px-5 py-3 font-medium flex justify-center text-white">
             <FaTrash />
           </button>
@@ -152,7 +183,9 @@ function CreateInclusion({ tourId }) {
           <ul>
             {inclusionsList.map((inclusion, index) => (
               <li key={index} className="border-b border-gray py-2">
-                <strong>{inclusion.packageType}:</strong> {inclusion.inclusions}
+                <strong>{inclusion.packageType}:</strong> {inclusion.inclusions} 
+                <br />
+                <strong>Price:</strong> ${inclusion.price.toFixed(2)}
               </li>
             ))}
           </ul>

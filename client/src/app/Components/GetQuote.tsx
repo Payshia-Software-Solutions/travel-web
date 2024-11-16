@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { AiOutlineArrowRight } from "react-icons/ai";
 import { FaCalendarAlt } from "react-icons/fa";
 
-function GetQuote() {
+function GetQuote({tour}) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -23,6 +23,7 @@ function GetQuote() {
   const [countries, setCountries] = useState([]);
   const [filteredCountries, setFilteredCountries] = useState([]);
   const [activeField, setActiveField] = useState("");
+  const [inclusions, setInclusions] = useState([]);  // Define inclusions state
 
   // Fetch country codes dynamically from an API
   useEffect(() => {
@@ -46,6 +47,39 @@ function GetQuote() {
     fetchCountryCodes();
   }, []);
 
+  useEffect(() => {
+    // Fetch inclusions for the tour
+    if (tour?._id) {
+      const fetchInclusions = async () => {
+        try {
+          const response = await fetch(
+            `http://localhost:5000/api/inclusion/tour/${tour._id}`
+          );
+          if (response.ok) {
+            const data = await response.json();
+            console.log("Fetched inclusions:", data); // Log the inclusions data
+            setInclusions(data);  // Set inclusions in state
+          } else {
+            setError("Unable to load inclusions. Please try again later.");
+          }
+        } catch (err) {
+          console.error("Error fetching inclusions:", err);
+        }
+      };
+
+      fetchInclusions();
+    }
+  }, [tour?._id]);
+
+  // Function to handle package selection
+  const handlePackageSelect = (packageType, price) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      packageType: packageType, // Update the selected package
+      totalPrice: price, // Update the total price based on the selected package
+    }));
+  };
+
   // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -54,6 +88,9 @@ function GetQuote() {
       ...prevData,
       [name]: value,
     }));
+
+   
+  
 
     // Filter countries based on the field being typed
     if (["livingCountry", "nationality", "destination"].includes(name)) {
@@ -219,31 +256,37 @@ function GetQuote() {
         </div>
       </div>
 
-      <h2 className="text-xl font-semibold text-blue-700 mt-8 mb-4">
-        Package Details
-      </h2>
-      <div className="space-y-2">
-        {["silver", "gold", "platinum"].map((type, idx) => (
-          <div key={idx} className="flex items-center">
-            <input
-              type="radio"
-              id={type}
-              name="packageType"
-              value={type}
-              checked={formData.packageType === type}
-              onChange={handleChange}
-              className="mr-2"
-            />
-            <label htmlFor={type} className="text-gray-600 capitalize">
-              {type}
-            </label>
-          </div>
-        ))}
-      </div>
-
-      <div className="flex justify-between items-center my-6 font-bold text-lg text-gray-700">
-        <span>Total</span>
-        <span className="text-black">${formData.totalPrice}</span>
+      <div>
+        <h2 className="text-xl font-semibold text-blue-700 mt-8 mb-4">
+          Package Details
+        </h2>
+        <div className="space-y-2">
+          {/* Display package types with prices and radio buttons */}
+          {inclusions
+            .filter((inclusion) => inclusion.price !== undefined) // Filter out packages with undefined price
+            .map((inclusion, idx) => (
+              <div key={idx} className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  id={inclusion.packageType}
+                  name="packageType"
+                  value={inclusion.packageType}
+                  checked={formData.packageType === inclusion.packageType}
+                  onChange={() =>
+                    handlePackageSelect(inclusion.packageType, inclusion.price)
+                  }
+                  className="mr-2"
+                />
+                <label className="text-lg" htmlFor={inclusion.packageType}>
+                  {inclusion.packageType}
+                </label>
+              </div>
+            ))}
+        </div>
+        <div className="mt-4 flex justify-between">
+          <span className="text-xl font-bold"> Total Price:</span>
+          <span className="text-2xl">${formData.totalPrice}</span>
+        </div>
       </div>
 
       <button

@@ -240,7 +240,7 @@ function ClientComponent({ inclusions, tour }) {
             </div>
           </div>
 
-          <GetQuote />
+          <GetQuote tour={tour} inclusions={inclusions} />
         </div>
       </div>
     </div>

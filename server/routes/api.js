@@ -18,7 +18,7 @@ const InclusionController = require("../controllers/inclusionController");
 // Tour routes
 router.post("/tours", TourController.createTour);
 router.get("/tours", TourController.getAllTours);
-router.get("/tours/:id", TourController.getTourById);
+router.get("/tours/:slug", TourController.getTourBySlug);
 router.put("/tours/:id", TourController.updateTour);
 router.delete("/tours/:id", TourController.deleteTour);
 

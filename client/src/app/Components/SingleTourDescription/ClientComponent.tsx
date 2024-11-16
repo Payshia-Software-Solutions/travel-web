@@ -13,7 +13,7 @@ import {
 } from "react-icons/fa";
 import SectionTitle from "../../Components/section-title/section-title";
 
-function ClientComponent({ inclusions,tour }) {
+function ClientComponent({ inclusions, tour }) {
   const [activeTab, setActiveTab] = useState("itinerary");
   const [selectedPackage, setSelectedPackage] = useState(null);
 
@@ -83,28 +83,7 @@ function ClientComponent({ inclusions,tour }) {
                     <div className="">
                       <div className="flex gap-4 flex-col">
                         <div className="text-justify text-stone-500 text-xl font-normal leading-normal">
-                          Lorem, ipsum dolor sit amet consectetur adipisicing
-                          elit. Quos et ipsam corporis doloremque consequatur,
-                          facilis fugiat praesentium nostrum nemo dolor magni,
-                          vitae quibusdam aspernatur accusantium, molestiae
-                          atque enim ut accusamus? Consectetur, dignissimos?
-                          Sunt eos eaque nostrum recusandae velit eligendi iste
-                          sapiente voluptates fuga exercitationem modi deserunt
-                          praesentium nemo non consequuntur ut ipsum ipsam sit
-                          harum, ipsa quasi ab dolorem. Tenetur. Voluptatibus,
-                          quod! Cum tempore sunt ea necessitatibus similique
-                          veritatis ad vero dolorum ipsum, quam tempora et
-                          incidunt culpa voluptates, voluptate facilis quis?
-                          Eligendi nostrum inventore animi, placeat quos amet
-                          quibusdam! Nam recusandae voluptas maxime quasi dicta
-                          quaerat id possimus. Minus architecto explicabo dolor
-                          dignissimos impedit placeat quod corporis numquam sit
-                          perferendis dolorem, iure, beatae a adipisci soluta
-                          labore, non saepe? Ipsum itaque possimus vitae non
-                          hic! Adipisci odio ipsa facere deleniti illum sint
-                          voluptates ad neque laborum quos nihil quo eveniet
-                          autem, officia tempora facilis repellendus accusantium
-                          quas. Iusto, tempore.
+                          {tour.tourDetails}
                         </div>
                         <div className="flex gap-3 items-center">
                           <div className="flex gap-2 text-yellow-400">
@@ -125,212 +104,92 @@ function ClientComponent({ inclusions,tour }) {
                     <div className="mt-5">
                       <SectionTitle title="Schedule" />
                     </div>
+
                     <div className="w-full mt-2 text-black text-[40px] md:text-5xl font-medium font-['Noto Sans JP'] capitalize leading-[50px]">
                       Tour Day schedule
                     </div>
 
-                    <div className="mt-5 mb-0">
-                      <SectionTitle title="1st Day" />
-                    </div>
-                    <div className="w-full text-black text-[30px] font-bold font-['Noto Sans JP'] capitalize leading-[50px]">
-                      Pick up Katunayaka Bandaranayaka International Airport
-                    </div>
+                    {/* Loop over tourSchedule */}
+                    {tour.tourSchedule && tour.tourSchedule.length > 0 ? (
+                      tour.tourSchedule.map((day, index) => (
+                        <div key={index} className="mt-5 mb-0">
+                          <SectionTitle title={`${index + 1}st Day`} />{" "}
+                          {/* Dynamic day title */}
+                          <div className="w-full text-black text-[30px] font-bold font-['Noto Sans JP'] capitalize leading-[50px]">
+                            {day.dayTitle} {/* Dynamic day title */}
+                          </div>
+                          <div className="my-3">
+                            <p className="text-lg leading">
+                              {day.dayPlan} {/* Dynamic day plan */}
+                            </p>
 
-                    <div className="my-3">
-                      <p className="text-lg leading">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                        At porro alias saepe facere maiores eaque ducimus,
-                        voluptatibus ipsam adipisci dolorem dolorum est autem
-                        officia quaerat non harum nam dolores aut! Lorem ipsum
-                        dolor sit amet consectetur adipisicing elit. At porro
-                        alias saepe facere maiores eaque ducimus, voluptatibus
-                        ipsam adipisci dolorem dolorum est autem officia quaerat
-                        non harum nam dolores aut! Lorem ipsum dolor sit amet
-                        consectetur adipisicing elit. At porro alias saepe
-                        facere maiores eaque ducimus, voluptatibus ipsam
-                        adipisci dolorem dolorum est autem officia quaerat non
-                        harum nam dolores aut! Lorem ipsum dolor sit amet
-                        consectetur adipisicing elit. At porro alias saepe
-                        facere maiores eaque ducimus, voluptatibus ipsam
-                        adipisci dolorem dolorum est autem officia quaerat non
-                        harum nam dolores aut! Lorem ipsum dolor sit amet
-                        consectetur adipisicing elit. At porro alias saepe
-                        facere maiores eaque ducimus, voluptatibus ipsam
-                        adipisci dolorem dolorum est autem officia quaerat non
-                        harum nam dolores aut! Lorem ipsum dolor sit amet
-                        consectetur adipisicing elit. At porro alias saepe
-                        facere maiores eaque ducimus, voluptatibus ipsam
-                        adipisci dolorem dolorum est autem officia quaerat non
-                        harum nam dolores aut! Lorem ipsum dolor sit amet
-                        consectetur adipisicing elit. At porro alias saepe
-                        facere maiores eaque ducimus, voluptatibus ipsam
-                        adipisci dolorem dolorum est autem officia quaerat non
-                        harum nam dolores aut! Lorem ipsum dolor sit amet
-                        consectetur adipisicing elit. At porro alias saepe
-                        facere maiores eaque ducimus, voluptatibus ipsam
-                        adipisci dolorem dolorum est autem officia quaerat non
-                        harum nam dolores aut! Lorem ipsum dolor sit amet
-                        consectetur adipisicing elit. At porro alias saepe
-                        facere maiores eaque ducimus, voluptatibus ipsam
-                        adipisci dolorem dolorum est autem officia quaerat non
-                        harum nam dolores aut! Lorem ipsum dolor sit amet
-                        consectetur adipisicing elit. At porro alias saepe
-                        facere maiores eaque ducimus, voluptatibus ipsam
-                        adipisci dolorem dolorum est autem officia quaerat non
-                        harum nam dolores aut! Lorem ipsum dolor sit amet
-                        consectetur adipisicing elit. At porro alias saepe
-                        facere maiores eaque ducimus, voluptatibus ipsam
-                        adipisci dolorem dolorum est autem adipisicing elit. At
-                        porro alias saepe facere maiores eaque
-                      </p>
-                      <div className="grid grid-cols-4 gap-2 my-3">
-                        <img
-                          className="rounded-sm object-cover banner-img"
-                          src="/images/tours/sripadaya.jpg"
-                          alt="home banner"
-                        />
-                        <img
-                          className="rounded-sm object-cover banner-img"
-                          src="/images/tours/sripadaya.jpg"
-                          alt="home banner"
-                        />
-                        <img
-                          className="rounded-sm object-cover banner-img"
-                          src="/images/tours/sripadaya.jpg"
-                          alt="home banner"
-                        />
-                        <img
-                          className="rounded-sm object-cover banner-img"
-                          src="/images/tours/sripadaya.jpg"
-                          alt="home banner"
-                        />
-                      </div>
-                    </div>
+                            {/* If an image exists, display it */}
+                            {day.image && (
+                              <img
+                                className="rounded-sm object-cover banner-img"
+                                src={day.image}
+                                alt={`Day ${day.dayId}`}
+                              />
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div>No schedule available</div> // If no schedule data is present
+                    )}
                   </div>
+
                   {/*2nd Description */}
-                  <div>
-                    <div className="mt-5 mb-0">
-                      <SectionTitle title="1st Day" />
-                    </div>
-                    <div className="w-full text-black text-[30px] font-bold font-['Noto Sans JP'] capitalize leading-[50px]">
-                      Pick up Katunayaka Bandaranayaka International Airport
-                    </div>
 
-                    <div className="my-3">
-                      <p className="text-lg leading">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                        At porro alias saepe facere maiores eaque ducimus,
-                        voluptatibus ipsam adipisci dolorem dolorum est autem
-                        officia quaerat non harum nam dolores aut! Lorem ipsum
-                        dolor sit amet consectetur adipisicing elit. At porro
-                        alias saepe facere maiores eaque ducimus, voluptatibus
-                        ipsam adipisci dolorem dolorum est autem officia quaerat
-                        non harum nam dolores aut! Lorem ipsum dolor sit amet
-                        consectetur adipisicing elit. At porro alias saepe
-                        facere maiores eaque ducimus, voluptatibus ipsam
-                        adipisci dolorem dolorum est autem officia quaerat non
-                        harum nam dolores aut! Lorem ipsum dolor sit amet
-                        consectetur adipisicing elit. At porro alias saepe
-                        facere maiores eaque ducimus, voluptatibus ipsam
-                        adipisci dolorem dolorum est autem officia quaerat non
-                        harum nam dolores aut! Lorem ipsum dolor sit amet
-                        consectetur adipisicing elit. At porro alias saepe
-                        facere maiores eaque ducimus, voluptatibus ipsam
-                        adipisci dolorem dolorum est autem officia quaerat non
-                        harum nam dolores aut! Lorem ipsum dolor sit amet
-                        consectetur adipisicing elit. At porro alias saepe
-                        facere maiores eaque ducimus, voluptatibus ipsam
-                        adipisci dolorem dolorum est autem officia quaerat non
-                        harum nam dolores aut! Lorem ipsum dolor sit amet
-                        consectetur adipisicing elit. At porro alias saepe
-                        facere maiores eaque ducimus, voluptatibus ipsam
-                        adipisci dolorem dolorum est autem officia quaerat non
-                        harum nam dolores aut! Lorem ipsum dolor sit amet
-                        consectetur adipisicing elit. At porro alias saepe
-                        facere maiores eaque ducimus, voluptatibus ipsam
-                        adipisci dolorem dolorum est autem officia quaerat non
-                        harum nam dolores aut! Lorem ipsum dolor sit amet
-                        consectetur adipisicing elit. At porro alias saepe
-                        facere maiores eaque ducimus, voluptatibus ipsam
-                        adipisci dolorem dolorum est autem officia quaerat non
-                        harum nam dolores aut! Lorem ipsum dolor sit amet
-                        consectetur adipisicing elit. At porro alias saepe
-                        facere maiores eaque ducimus, voluptatibus ipsam
-                        adipisci dolorem dolorum est autem officia quaerat non
-                        harum nam dolores aut! Lorem ipsum dolor sit amet
-                        consectetur adipisicing elit. At porro alias saepe
-                        facere maiores eaque ducimus, voluptatibus ipsam
-                        adipisci dolorem dolorum est autem adipisicing elit. At
-                        porro alias saepe facere maiores eaque
-                      </p>
-                      <div className="grid grid-cols-4 gap-2 my-3">
-                        <img
-                          className="rounded-sm object-cover banner-img"
-                          src="/images/tours/sripadaya.jpg"
-                          alt="home banner"
-                        />
-                        <img
-                          className="rounded-sm object-cover banner-img"
-                          src="/images/tours/sripadaya.jpg"
-                          alt="home banner"
-                        />
-                        <img
-                          className="rounded-sm object-cover banner-img"
-                          src="/images/tours/sripadaya.jpg"
-                          alt="home banner"
-                        />
-                        <img
-                          className="rounded-sm object-cover banner-img"
-                          src="/images/tours/sripadaya.jpg"
-                          alt="home banner"
-                        />
-                      </div>
-                    </div>
-                  </div>
+                  
+
                 </div>
               </div>
             </div>
           )}
           {activeTab === "inclusions" && (
-           <div className="bg-gray-100 rounded-2xl p-4">
-           {/* Inclusions content here */}
-           <h2 className="text-4xl my-6 text-black font-bold">Inclusions</h2>
-           <div className="grid grid-cols-4 gap-4" >
-             {["gold","platinum",  "silver", "bronze"].map((packageType) => (
-               <button
-                 key={packageType}
-                 onClick={() => handlePackageClick(packageType)}
-                 className={`bg-gray-800 text-white hover:bg-blue-600 rounded-lg shadow-md p-4 ${
-                   selectedPackage === packageType ? "active" : ""
-                 }`}
-               >
-                 {packageType.charAt(0).toUpperCase() + packageType.slice(1)}
-               </button>
-             ))}
-           </div>
-         
-           {selectedPackage && (
-             <div style={{ marginTop: "1rem" }}>
-               <h3 className="text-2xl font-semibold my-4">
-                 {selectedPackage.charAt(0).toUpperCase() + selectedPackage.slice(1)}{" "}
-                 Package
-               </h3>
-               <div className="p-4">
-                 <ul className="text-xl">
-                   {inclusions
-                     .filter((inclusion) => inclusion.packageType === selectedPackage)
-                     .flatMap((inclusion) => inclusion.inclusions)
-                     .map((item, index) => (
-                       <li className="list-disc" key={index}>
-                         {item.replace(/['"]+/g, "")}
-                       </li>
-                     ))}
-                 </ul>
-               </div>
-             </div>
-           )}
-         </div>
-         
+            <div className="bg-gray-100 rounded-2xl p-4  md:p-4">
+              {/* Inclusions content here */}
+              <h2 className="text-4xl my-6 text-black font-bold">Inclusions</h2>
+              <div className="grid  grid-cols-1 md:grid-cols-4 gap-4">
+                {["gold", "platinum", "silver", "bronze"].map((packageType) => (
+                  <button
+                    key={packageType}
+                    onClick={() => handlePackageClick(packageType)}
+                    className={`bg-gray-800 text-white hover:bg-blue-600 rounded-lg shadow-md p-4 ${
+                      selectedPackage === packageType ? "active" : ""
+                    }`}
+                  >
+                    {packageType.charAt(0).toUpperCase() + packageType.slice(1)}
+                  </button>
+                ))}
+              </div>
+
+              {selectedPackage && (
+                <div style={{ marginTop: "1rem" }}>
+                  <h3 className=" text-lg md:text-2xl font-semibold my-4">
+                    {selectedPackage.charAt(0).toUpperCase() +
+                      selectedPackage.slice(1)}{" "}
+                    Package
+                  </h3>
+                  <div className="p-4">
+                    <ul className=" text-md  md:text-xl">
+                      {inclusions
+                        .filter(
+                          (inclusion) =>
+                            inclusion.packageType === selectedPackage
+                        )
+                        .flatMap((inclusion) => inclusion.inclusions)
+                        .map((item, index) => (
+                          <li className="list-disc" key={index}>
+                            {item.replace(/['"]+/g, "")}
+                          </li>
+                        ))}
+                    </ul>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
           {activeTab === "summary" && (
             <div>
@@ -340,28 +199,7 @@ function ClientComponent({ inclusions,tour }) {
                     <div className="">
                       <div className="flex gap-4 flex-col">
                         <div className="text-justify text-stone-500 text-xl font-normal leading-normal">
-                          Lorem, ipsum dolor sit amet consectetur adipisicing
-                          elit. Quos et ipsam corporis doloremque consequatur,
-                          facilis fugiat praesentium nostrum nemo dolor magni,
-                          vitae quibusdam aspernatur accusantium, molestiae
-                          atque enim ut accusamus? Consectetur, dignissimos?
-                          Sunt eos eaque nostrum recusandae velit eligendi iste
-                          sapiente voluptates fuga exercitationem modi deserunt
-                          praesentium nemo non consequuntur ut ipsum ipsam sit
-                          harum, ipsa quasi ab dolorem. Tenetur. Voluptatibus,
-                          quod! Cum tempore sunt ea necessitatibus similique
-                          veritatis ad vero dolorum ipsum, quam tempora et
-                          incidunt culpa voluptates, voluptate facilis quis?
-                          Eligendi nostrum inventore animi, placeat quos amet
-                          quibusdam! Nam recusandae voluptas maxime quasi dicta
-                          quaerat id possimus. Minus architecto explicabo dolor
-                          dignissimos impedit placeat quod corporis numquam sit
-                          perferendis dolorem, iure, beatae a adipisci soluta
-                          labore, non saepe? Ipsum itaque possimus vitae non
-                          hic! Adipisci odio ipsa facere deleniti illum sint
-                          voluptates ad neque laborum quos nihil quo eveniet
-                          autem, officia tempora facilis repellendus accusantium
-                          quas. Iusto, tempore.
+                        {tour.highlightText}
                         </div>
                         <div className="flex gap-3 items-center">
                           <div className="flex gap-2 text-yellow-400">

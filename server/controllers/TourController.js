@@ -1,12 +1,13 @@
 const Tour = require("../models/Tour");
+const slugify = require("slugify"); // Import slugify library
 const moment = require("moment");
 const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 
+// Create a new tour
 const createTour = async (req, res) => {
     try {
-        // Use multer to handle file uploads
-        upload.single('tourCover')(req, res, async (err) => {
+        upload.single("tourCover")(req, res, async (err) => {
             if (err) {
                 return res.status(400).json({ message: "Error uploading file" });
             }
@@ -15,7 +16,6 @@ const createTour = async (req, res) => {
             const FixedUpdatedBy = "66ae7fe4a9498f09f37f01cc";
 
             const {
-               
                 dayPlans,
                 tourName,
                 highlightText,
@@ -34,7 +34,10 @@ const createTour = async (req, res) => {
             } = req.body;
 
             // Ensure required fields are present
-            const requiredFields = ["tourName", "highlightText", "tourDetails", "tourPrice", "participants", "noOfDays", "tourCategory", "createdBy"];
+            const requiredFields = [
+                "tourName", "highlightText", "tourDetails", "tourPrice",
+                "participants", "noOfDays", "tourCategory"
+            ];
             const missingFields = requiredFields.filter(field => !req.body[field]);
 
             if (missingFields.length > 0) {
@@ -45,12 +48,21 @@ const createTour = async (req, res) => {
             const tourCount = await Tour.countDocuments();
             const tourId = `TOUR-${tourCount + 1}`;
 
+            // Generate a unique slug
+            const slug = slugify(tourName, { lower: true, strict: true });
+
+            // Check if the slug already exists
+            const slugExists = await Tour.findOne({ slug });
+            if (slugExists) {
+                return res.status(400).json({ message: "A tour with this name already exists" });
+            }
+
             // Create new tour entry
             const newTour = new Tour({
                 tourId,
-            
                 dayPlans,
                 tourName,
+                slug,
                 highlightText,
                 tourDetails,
                 tourPrice,
@@ -76,72 +88,40 @@ const createTour = async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 };
-// Create a new tour
-// const createTour = async (req, res) => {
-//     try {
-//         const {
-//             inclusions,
-//             dayPlans,
-//             tourId,
-//             tourName,
-//             highlightText,
-//             tourDetails,
-//             tourPrice,
-//             participants,
-//             tourCover,
-//             tourGallery,
-//             noOfDays,
-//             aboutCover,
-//             tags,
-//             basePlace,
-//             tourSchedule,
-//             tourCategory,
-//             createdBy,
-//             updatedBy,
-//             isActive
-//         } = req.body;
-//         console.log(req.body)
 
-//         // Ensure required fields are present
-//         const requiredFields = ["tourId", "tourName", "highlightText", "tourDetails", "tourPrice", "participants", "tourCover", "noOfDays", "tourCategory", "createdBy"];
-//         const missingFields = requiredFields.filter(field => !req.body[field]);
+// Update a tour by ID
+const updateTour = async (req, res) => {
+    try {
+        const { tourName, ...otherFields } = req.body;
 
+        // Generate a new slug if the tour name has changed
+        let slug;
+        if (tourName) {
+            slug = slugify(tourName, { lower: true, strict: true });
 
-//         if (missingFields.length > 0) {
-//             return res.status(400).json({ message: "Missing required fields", missingFields });
-//         }
+            // Check if the new slug already exists (excluding the current tour)
+            const slugExists = await Tour.findOne({ slug, _id: { $ne: req.params.id } });
+            if (slugExists) {
+                return res.status(400).json({ message: "A tour with this name already exists" });
+            }
+        }
 
-//         // Create new tour entry
-//         const newTour = new Tour({
-//             inclusions,
-//             dayPlans,
-//             tourId,
-//             tourName,
-//             highlightText,
-//             tourDetails,
-//             tourPrice,
-//             participants,
-//             tourCover,
-//             tourGallery,
-//             noOfDays,
-//             aboutCover,
-//             tags,
-//             basePlace,
-//             tourSchedule,
-//             tourCategory,
-//             createdBy,
-//             updatedBy,
-//             isActive
-//         });
+        const updatedTour = await Tour.findByIdAndUpdate(
+            req.params.id,
+            { ...otherFields, ...(slug && { slug }) }, // Add slug only if it's updated
+            { new: true }
+        );
 
-//         await newTour.save();
-//         res.status(201).json(newTour);
-//     } catch (error) {
-//         console.error("Error creating tour:", error.message);
-//         res.status(500).json({ message: "Server error" });
-//     }
-// };
+        if (!updatedTour) {
+            return res.status(404).json({ message: "Tour not found" });
+        }
 
+        res.status(200).json(updatedTour);
+    } catch (error) {
+        console.error("Error updating tour:", error.message);
+        res.status(500).json({ message: "Server error" });
+    }
+};
 
 // Retrieve all tours
 const getAllTours = async (req, res) => {
@@ -154,78 +134,16 @@ const getAllTours = async (req, res) => {
     }
 };
 
-// Retrieve a single tour by ID
-const getTourById = async (req, res) => {
+// Retrieve a single tour by slug
+const getTourBySlug = async (req, res) => {
     try {
-        const tour = await Tour.findById(req.params.id);
+        const tour = await Tour.findOne({ slug: req.params.slug });
         if (!tour) {
             return res.status(404).json({ message: "Tour not found" });
         }
         res.status(200).json(tour);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server error" });
-    }
-};
-
-// Update a tour by ID
-const updateTour = async (req, res) => {
-    try {
-        const {
-           
-            dayPlans,
-            tourId,
-            tourName,
-            highlightText,
-            tourDetails,
-            tourPrice,
-            participants,
-            tourCover,
-            tourGallery,
-            noOfDays,
-            aboutCover,
-            tags,
-            basePlace,
-            tourSchedule,
-            tourCategory,
-            createdBy,
-            updatedBy,
-            isActive
-        } = req.body;
-
-        const updatedTour = await Tour.findByIdAndUpdate(
-            req.params.id,
-            {
-           
-                dayPlans,
-                tourId,
-                tourName,
-                highlightText,
-                tourDetails,
-                tourPrice,
-                participants,
-                tourCover,
-                tourGallery,
-                noOfDays,
-                aboutCover,
-                tags,
-                basePlace,
-                tourSchedule,
-                tourCategory,
-                createdBy,
-                updatedBy,
-                isActive
-            },
-            { new: true }
-        );
-
-        if (!updatedTour) {
-            return res.status(404).json({ message: "Tour not found" });
-        }
-
-        res.status(200).json(updatedTour);
-    } catch (error) {
-        console.error("Error updating tour:", error.message);
+        console.error("Error fetching tour by slug:", error.message);
         res.status(500).json({ message: "Server error" });
     }
 };
@@ -247,7 +165,7 @@ const deleteTour = async (req, res) => {
 module.exports = {
     createTour,
     getAllTours,
-    getTourById,
+    getTourBySlug,
     updateTour,
     deleteTour,
 };

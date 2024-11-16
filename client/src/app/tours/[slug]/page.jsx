@@ -9,7 +9,9 @@ export async function generateStaticParams() {
     const res = await fetch(`${config.API_BASE_URL}/api/tours`);
     if (!res.ok) throw new Error("Failed to fetch tours");
     const tours = await res.json();
-    return tours.map((tour) => ({ slug: tour._id }));
+    
+    // Make sure to return slugs in the params
+    return tours.map((tour) => ({ slug: tour.slug })); // Corrected to return slug
   } catch (error) {
     console.error("Error fetching tours:", error);
     return [];
@@ -26,12 +28,11 @@ const SingleTour = async ({ params }) => {
 
     return (
       <div>
-         <div className="home-banner-main relative z-10">
-          {/* <Image className="rounded lg:h-custom object-cover" src={HomeBanner} /> */}
+        <div className="home-banner-main relative z-10">
           <img
             className="rounded lg:h-custom object-cover banner-img"
             src={`${config.API_BASE_URL}/public/uploads/tours/${tour.tourCover}`}
-            alt="home banner"
+            alt="Tour banner"
           />
         </div>
         <SingleClient tour={tour} />

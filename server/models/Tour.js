@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const slugify = require("slugify");
 const { Schema, model } = mongoose;
 
 const DayPlanSchema = new Schema(
@@ -12,10 +13,10 @@ const DayPlanSchema = new Schema(
 
 const TourSchema = new Schema(
   {
-   
     dayPlans: { type: [DayPlanSchema], default: [] },
     tourId: { type: String, required: true },
     tourName: { type: String, required: true },
+    slug: { type: String, unique: true }, 
     highlightText: { type: String, required: true },
     tourDetails: { type: String, required: true },
     tourPrice: { type: Number, required: true },
@@ -31,7 +32,6 @@ const TourSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Category",
       required: true,
-    
     },
     createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
     updatedBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
@@ -40,5 +40,11 @@ const TourSchema = new Schema(
   { timestamps: true }
 );
 
-// Export the Tour model
+TourSchema.pre("save", function (next) {
+  if (this.isModified("tourName")) { 
+    this.slug = slugify(this.tourName, { lower: true, strict: true });
+  }
+  next();
+});
+
 module.exports = model("Tour", TourSchema);

@@ -397,7 +397,7 @@ const AllTours = () => {
                           {tour.tourDetails}
                         </p>
                         <div className="rtr-bottom-div flex justify-around rounded pt-1 pb-1 mt-3">
-                          <a href={`/tours/${tour._id}`}>
+                          <a href={`/tours/${tour.slug}`}>
                             <button className="btn rtr-book-now flex py-2 px-4">
                               Open{" "}
                               <FaArrowRight className="bottom-button-icon ml-2 mt-1 "/>

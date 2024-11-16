@@ -1,5 +1,6 @@
 const Booking = require("../models/Booking");
 const moment = require("moment");
+const countryCodeLookup = require("country-code-lookup"); // Library for country code lookup
 
 // Create a new booking
 const createBooking = async (req, res) => {
@@ -14,21 +15,42 @@ const createBooking = async (req, res) => {
             arrivalDate,
             departureDate,
             packageType,
-            totalPrice
+            totalPrice,
         } = req.body;
 
         // Ensure required fields are present
-        const requiredFields = ["name", "email", "mobile", "livingCountry", "destination", "arrivalDate", "departureDate", "packageType", "totalPrice"];
-        const missingFields = requiredFields.filter(field => !req.body[field]);
+        const requiredFields = [
+            "name",
+            "email",
+            "mobile",
+            "livingCountry",
+            "destination",
+            "arrivalDate",
+            "departureDate",
+            "packageType",
+            "totalPrice",
+        ];
+        const missingFields = requiredFields.filter((field) => !req.body[field]);
 
         if (missingFields.length > 0) {
             return res.status(400).json({ message: "Missing required fields", missingFields });
         }
 
         // Validate arrivalDate and departureDate formats
-        if (!moment(arrivalDate, moment.ISO_8601, true).isValid() || !moment(departureDate, moment.ISO_8601, true).isValid()) {
+        if (
+            !moment(arrivalDate, moment.ISO_8601, true).isValid() ||
+            !moment(departureDate, moment.ISO_8601, true).isValid()
+        ) {
             return res.status(400).json({ message: "Invalid date format for arrival or departure" });
         }
+
+        // Get the country code for livingCountry
+        const countryDetails = countryCodeLookup.byCountry(livingCountry);
+        if (!countryDetails) {
+            return res.status(400).json({ message: `Invalid living country: ${livingCountry}` });
+        }
+
+        const countryCode = countryDetails.iso2; // Use ISO-2 format country code
 
         // Create new booking entry
         const newBooking = new Booking({
@@ -36,12 +58,13 @@ const createBooking = async (req, res) => {
             email,
             mobile,
             livingCountry,
+            countryCode, // Add the resolved country code
             nationality,
             destination,
             arrivalDate,
             departureDate,
             packageType,
-            totalPrice
+            totalPrice,
         });
 
         await newBooking.save();
@@ -90,8 +113,18 @@ const updateBooking = async (req, res) => {
             arrivalDate,
             departureDate,
             packageType,
-            totalPrice
+            totalPrice,
         } = req.body;
+
+        // Get the updated country code if livingCountry is present
+        let countryCode;
+        if (livingCountry) {
+            const countryDetails = countryCodeLookup.byCountry(livingCountry);
+            if (!countryDetails) {
+                return res.status(400).json({ message: `Invalid living country: ${livingCountry}` });
+            }
+            countryCode = countryDetails.iso2; // Use ISO-2 format country code
+        }
 
         const updatedBooking = await Booking.findByIdAndUpdate(
             req.params.id,
@@ -100,12 +133,13 @@ const updateBooking = async (req, res) => {
                 email,
                 mobile,
                 livingCountry,
+                ...(countryCode && { countryCode }), // Include updated countryCode if livingCountry is provided
                 nationality,
                 destination,
                 arrivalDate,
                 departureDate,
                 packageType,
-                totalPrice
+                totalPrice,
             },
             { new: true }
         );

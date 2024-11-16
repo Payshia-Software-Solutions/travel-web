@@ -1,5 +1,6 @@
 "use client";
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { AiOutlineArrowRight } from "react-icons/ai";
 import { FaCalendarAlt } from "react-icons/fa";
 
@@ -8,6 +9,7 @@ function GetQuote() {
     name: "",
     email: "",
     mobile: "",
+    countryCode: "+94", // Default country code
     livingCountry: "",
     nationality: "",
     destination: "",
@@ -17,29 +19,84 @@ function GetQuote() {
     totalPrice: 15000, // Example total price
   });
 
+  const [countryCodes, setCountryCodes] = useState([]);
+  const [countries, setCountries] = useState([]);
+  const [filteredCountries, setFilteredCountries] = useState([]);
+  const [activeField, setActiveField] = useState("");
+
+  // Fetch country codes dynamically from an API
+  useEffect(() => {
+    const fetchCountryCodes = async () => {
+      try {
+        const response = await fetch("https://restcountries.com/v3.1/all");
+        const countriesData = await response.json();
+
+        // Map to extract country codes and names
+        const codes = countriesData.map((country) => ({
+          code: country.idd?.root + (country.idd?.suffixes?.[0] || ""),
+          name: country.name.common,
+        }));
+        setCountryCodes(codes.filter((c) => c.code)); // Filter out entries without codes
+        setCountries(countriesData.map((c) => c.name.common).sort()); // Extract sorted country names
+      } catch (error) {
+        console.error("Failed to fetch country codes:", error);
+      }
+    };
+
+    fetchCountryCodes();
+  }, []);
+
+  // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
+
+    // Filter countries based on the field being typed
+    if (["livingCountry", "nationality", "destination"].includes(name)) {
+      setActiveField(name); // Keep track of the active input
+      if (value.length > 0) {
+        setFilteredCountries(
+          countries.filter((country) =>
+            country.toLowerCase().startsWith(value.toLowerCase())
+          )
+        );
+      } else {
+        setFilteredCountries([]);
+      }
+    }
   };
 
+  const handleSelect = (field, value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [field]: value,
+    }));
+    setFilteredCountries([]); // Clear suggestions
+    setActiveField(""); // Reset active field
+  };
+
+  // Handle form submission
   const handleSubmit = async () => {
     try {
+      // Combine country code with mobile number
+      const fullMobileNumber = `${formData.countryCode}${formData.mobile}`;
+      const payload = { ...formData, mobile: fullMobileNumber };
+
       const response = await fetch("http://localhost:5000/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
-
-      console.log(response);
 
       if (response.ok) {
         alert("Booking created successfully!");
       } else {
         alert("Failed to create booking.");
-        console.log(formData);
+        console.error(await response.json());
       }
     } catch (error) {
       console.error("Error:", error);
@@ -72,7 +129,18 @@ function GetQuote() {
           <label className="block text-gray-600 mb-2">Mobile:</label>
           <div className="flex">
             <div className="flex items-center border border-gray-300 p-3 rounded-l-lg bg-gray-100">
-              <span>+1</span>
+              <select
+                className="bg-gray-100 text-md rounded-l-lg w-28"
+                name="countryCode"
+                value={formData.countryCode}
+                onChange={handleChange}
+              >
+                {countryCodes.map((country, index) => (
+                  <option key={index} value={country.code}>
+                    {country.code} ({country.name})
+                  </option>
+                ))}
+              </select>
             </div>
             <input
               className="w-full border border-gray-300 p-3 rounded-r-lg focus:border-blue-500"
@@ -84,59 +152,45 @@ function GetQuote() {
             />
           </div>
         </div>
-        <div>
-          <label className="block text-gray-600 mb-2">Living Country:</label>
-          <select
-            className="w-full border border-gray-300 p-3 rounded-lg focus:border-blue-500"
-            name="livingCountry"
-            value={formData.livingCountry}
-            onChange={handleChange}
-          >
-            <option value="Australia">Australia</option>
-            <option value="India">India</option>
-            <option value="United States">United States</option>
-            {/* Add more country options here */}
-          </select>
-        </div>
-        <div>
-          <label className="block text-gray-600 mb-2">Nationality:</label>
-          <select
-            className="w-full border border-gray-300 p-3 rounded-lg focus:border-blue-500"
-            name="nationality"
-            value={formData.nationality}
-            onChange={handleChange}
-          >
-            <option value="sri lanka">Sri Lanka</option>
-            <option value="india">India</option>
-            <option value="united states">United States</option>
-            {/* Add more nationality options here */}
-          </select>
-        </div>
+        {["livingCountry", "nationality", "destination"].map((field, idx) => (
+          <div key={idx}>
+            <label
+              className="block text-gray-600 mb-2 capitalize"
+              htmlFor={field}
+            >
+              {field.replace(/([A-Z])/g, " $1")}
+            </label>
+            <input
+              className="w-full border border-gray-300 p-3 rounded-lg focus:border-blue-500"
+              type="text"
+              placeholder={`Type your ${field}`}
+              name={field}
+              value={formData[field]}
+              onChange={handleChange}
+              autoComplete="off"
+            />
+            {activeField === field && filteredCountries.length > 0 && (
+              <ul className="bg-white border mt-2 max-h-40 overflow-y-auto rounded-lg shadow-md">
+                {filteredCountries.map((country, index) => (
+                  <li
+                    key={index}
+                    className="p-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => handleSelect(field, country)}
+                  >
+                    {country}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))}
       </div>
 
       <h2 className="text-xl font-semibold text-blue-700 mt-8 mb-4">
         Tour Details
       </h2>
+      {/* Remaining fields: Destination, Arrival/Departure Dates, PackageType */}
       <div className="space-y-4">
-        <div>
-          <label className="block text-gray-600 mb-2">Destination:</label>
-          <select
-            className="w-full border border-gray-300 p-3 rounded-lg focus:border-blue-500"
-            name="destination"
-            value={formData.destination}
-            onChange={handleChange}
-          >
-            <option className="" value="sri lanka">
-              {" "}
-              Sri Lanka{" "}
-            </option>
-            <option value="india">India </option>
-            <option value="Pakisthan">Pakisthan </option>
-            <option value="Sri Lanka ">Sri Lanka </option>
-
-            {/* Add more destination options here */}
-          </select>
-        </div>
         <div>
           <label className="block text-gray-600 mb-2">Arrival Date:</label>
           <div className="relative">
@@ -169,48 +223,22 @@ function GetQuote() {
         Package Details
       </h2>
       <div className="space-y-2">
-        <div className="flex items-center">
-          <input
-            type="radio"
-            id="silver"
-            name="packageType"
-            value="silver"
-            checked={formData.packageType === "silver"}
-            onChange={handleChange}
-            className="mr-2"
-          />
-          <label htmlFor="silver" className="text-gray-600">
-            silver
-          </label>
-        </div>
-        <div className="flex items-center">
-          <input
-            type="radio"
-            id="gold"
-            name="packageType"
-            value="gold" // Change "Gold" to "gold"
-            checked={formData.packageType === "gold"}
-            onChange={handleChange}
-            className="mr-2"
-          />
-          <label htmlFor="gold" className="text-gray-600">
-            gold
-          </label>
-        </div>
-        <div className="flex items-center">
-          <input
-            type="radio"
-            id="platinum"
-            name="packageType"
-            value="platinum"
-            checked={formData.packageType === "platinum"}
-            onChange={handleChange}
-            className="mr-2"
-          />
-          <label htmlFor="platinum" className="text-gray-600">
-            platinum
-          </label>
-        </div>
+        {["silver", "gold", "platinum"].map((type, idx) => (
+          <div key={idx} className="flex items-center">
+            <input
+              type="radio"
+              id={type}
+              name="packageType"
+              value={type}
+              checked={formData.packageType === type}
+              onChange={handleChange}
+              className="mr-2"
+            />
+            <label htmlFor={type} className="text-gray-600 capitalize">
+              {type}
+            </label>
+          </div>
+        ))}
       </div>
 
       <div className="flex justify-between items-center my-6 font-bold text-lg text-gray-700">
@@ -218,14 +246,13 @@ function GetQuote() {
         <span className="text-black">${formData.totalPrice}</span>
       </div>
 
-      <div className="flex justify-between mt-6">
-        <button
-          onClick={handleSubmit}
-          className="bg-blue-600 text-white p-3 rounded-lg w-full mr-3 flex items-center justify-center"
-        >
-          Book Now <AiOutlineArrowRight className="ml-2" />
-        </button>
-      </div>
+      <button
+        onClick={handleSubmit}
+        className="bg-blue-600 text-white p-3 rounded-lg w-full flex items-center justify-center"
+      >
+        Get Quote
+        <AiOutlineArrowRight className="ml-2" />
+      </button>
     </div>
   );
 }

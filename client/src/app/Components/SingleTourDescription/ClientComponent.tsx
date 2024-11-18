@@ -110,8 +110,8 @@ function ClientComponent({ inclusions, tour }) {
                     </div>
 
                     {/* Loop over tourSchedule */}
-                    {tour.tourSchedule && tour.tourSchedule.length > 0 ? (
-                      tour.tourSchedule.map((day, index) => (
+                    {tour.dayPlans && tour.dayPlans.length > 0 ? (
+                      tour.dayPlans.map((day, index) => (
                         <div key={index} className="mt-5 mb-0">
                           <SectionTitle title={`${index + 1}st Day`} />{" "}
                           {/* Dynamic day title */}

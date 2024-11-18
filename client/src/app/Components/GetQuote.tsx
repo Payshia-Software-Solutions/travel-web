@@ -15,8 +15,8 @@ function GetQuote({tour}) {
     destination: "",
     arrivalDate: "",
     departureDate: "",
-    packageType: "silver",
-    totalPrice: 15000, // Example total price
+    packageType: "",
+    totalPrice: 0, // Example total price
   });
 
   const [countryCodes, setCountryCodes] = useState([]);

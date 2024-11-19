@@ -7,30 +7,21 @@ import { FaEye, FaPencilAlt, FaTrash } from "react-icons/fa";
 function CreateInclusion({ tourId }) {
   const [selectedOption, setSelectedOption] = useState("");
   const [tourDetails, setTourDetails] = useState("");
-  const [price, setPrice] = useState(""); // State for price
+  const [price, setPrice] = useState("");
   const [inclusionsList, setInclusionsList] = useState([]);
+  const [editingIndex, setEditingIndex] = useState(null); // New state to track editing
 
   useEffect(() => {
-    if (tourId && selectedOption) {
+    if (tourId) {
       const fetchInclusions = async () => {
         try {
           const response = await fetch(
-            `http://localhost:5000/api/inclusion/tour/${tourId}`,
+            `http://localhost:5000/api/inclusion/tour/${tourId}`
           );
           const result = await response.json();
 
           if (response.ok) {
-            const inclusion = result.find(
-              (item) =>
-                item.packageType.toLowerCase() === selectedOption.toLowerCase(),
-            );
-            if (inclusion) {
-              setTourDetails(inclusion.inclusions.join("\n"));
-              setPrice(inclusion.price || ""); // Populate price if available
-            } else {
-              setTourDetails("");
-              setPrice("");
-            }
+            setInclusionsList(result);
           } else {
             toast.error(result.error || "Failed to fetch inclusions.");
           }
@@ -41,10 +32,18 @@ function CreateInclusion({ tourId }) {
 
       fetchInclusions();
     }
-  }, [tourId, selectedOption]);
+  }, [tourId]);
 
   const handleButtonClick = (option) => {
     setSelectedOption(option);
+  };
+
+  const handleEditClick = (index) => {
+    const inclusion = inclusionsList[index];
+    setSelectedOption(inclusion.packageType);
+    setTourDetails(inclusion.inclusions.join("\n"));
+    setPrice(inclusion.price);
+    setEditingIndex(index); // Set the index to track editing
   };
 
   const handleSubmit = async (e) => {
@@ -52,45 +51,57 @@ function CreateInclusion({ tourId }) {
 
     if (!selectedOption || !tourDetails || !price || !tourId) {
       toast.error(
-        "Please select a package type, enter tour details, provide a price, and ensure tour ID is provided.",
+        "Please select a package type, enter tour details, provide a price, and ensure tour ID is provided."
       );
       return;
     }
 
+    const inclusionData = {
+      tourId,
+      packageType: selectedOption.toLowerCase(),
+      inclusions: tourDetails.split("\n").map((item) => item.trim()),
+      price: parseFloat(price),
+    };
+
     try {
-      const response = await fetch("http://localhost:5000/api/inclusion", {
-        method: "POST",
+      const method = editingIndex !== null ? "PUT" : "POST";
+      const url =
+        editingIndex !== null
+          ? `http://localhost:5000/api/inclusion/${inclusionsList[editingIndex]._id}`
+          : "http://localhost:5000/api/inclusion";
+
+      const response = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          tourId,
-          packageType: selectedOption.toLowerCase(),
-          inclusions: tourDetails.split("\n").map((item) => item.trim()), // Split by new lines
-          price: parseFloat(price), // Convert price to a number
-        }),
+        body: JSON.stringify(inclusionData),
       });
 
       const result = await response.json();
 
       if (response.ok) {
-        toast.success("Inclusion created successfully!");
-
-        // Add the new inclusion to the list
-        setInclusionsList((prevList) => [
-          ...prevList,
-          {
-            packageType: selectedOption,
-            inclusions: tourDetails,
-            price: parseFloat(price), // Display price
-          },
-        ]);
+        if (editingIndex !== null) {
+          toast.success("Inclusion updated successfully!");
+          setInclusionsList((prevList) => {
+            const updatedList = [...prevList];
+            updatedList[editingIndex] = { ...inclusionData, price: parseFloat(price) };
+            return updatedList;
+          });
+        } else {
+          toast.success("Inclusion created successfully!");
+          setInclusionsList((prevList) => [
+            ...prevList,
+            { ...inclusionData, price: parseFloat(price) },
+          ]);
+        }
 
         setSelectedOption("");
         setTourDetails("");
         setPrice("");
+        setEditingIndex(null);
       } else {
-        toast.error(result.error || "Failed to create inclusion.");
+        toast.error(result.error || "Failed to save inclusion.");
       }
     } catch (error) {
       toast.error("An error occurred. Please try again.");
@@ -102,7 +113,7 @@ function CreateInclusion({ tourId }) {
       <div className="rounded-lg bg-white lg:col-span-3 lg:p-12">
         <div className="mb-4 border-b border-gray">
           <h1 className="text-3xl font-extrabold text-black-2">
-            Create Inclusion
+            {editingIndex !== null ? "Edit Inclusion" : "Create Inclusion"}
           </h1>
           <p>Fill all required fields</p>
         </div>
@@ -170,11 +181,7 @@ function CreateInclusion({ tourId }) {
             onClick={handleSubmit}
             className="inline-block w-1/2 rounded-lg bg-black px-5 py-3 font-medium text-white"
           >
-            Submit
-          </button>
-          {/*delete button*/}
-          <button className="inline-block w-24 rounded-lg bg-red px-5 py-3 font-medium flex justify-center text-white">
-            <FaTrash />
+            {editingIndex !== null ? "Update" : "Submit"}
           </button>
         </div>
 
@@ -183,9 +190,17 @@ function CreateInclusion({ tourId }) {
           <ul>
             {inclusionsList.map((inclusion, index) => (
               <li key={index} className="border-b border-gray py-2">
-                <strong>{inclusion.packageType}:</strong> {inclusion.inclusions} 
+                <strong>{inclusion.packageType}:</strong> {inclusion.inclusions.join(", ")}
                 <br />
                 <strong>Price:</strong> ${inclusion.price.toFixed(2)}
+                <div className="mt-2 flex gap-2">
+                  <button
+                    onClick={() => handleEditClick(index)}
+                    className="text-blue-500 hover:underline"
+                  >
+                    Edit
+                  </button>
+                </div>
               </li>
             ))}
           </ul>

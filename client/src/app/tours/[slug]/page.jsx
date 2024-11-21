@@ -1,5 +1,5 @@
 // pages/tours/[slug]/page.jsx (Server Component)
-import React from 'react';
+import React from "react";
 import SingleClient from "./SingleClient";
 import config from "../../../config";
 import "./single-tours.css";
@@ -9,7 +9,7 @@ export async function generateStaticParams() {
     const res = await fetch(`${config.API_BASE_URL}/api/tours`);
     if (!res.ok) throw new Error("Failed to fetch tours");
     const tours = await res.json();
-    
+
     // Make sure to return slugs in the params
     return tours.map((tour) => ({ slug: tour.slug })); // Corrected to return slug
   } catch (error) {
@@ -31,7 +31,7 @@ const SingleTour = async ({ params }) => {
         <div className="home-banner-main relative z-10">
           <img
             className="rounded lg:h-custom object-cover banner-img"
-            src={`${config.API_BASE_URL}/public/uploads/tours/${tour.tourCover}`}
+            src={`${config.API_BASE_URL}/public/${tour.tourCover}`}
             alt="Tour banner"
           />
         </div>

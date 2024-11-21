@@ -1,6 +1,6 @@
 "use client";
 import { useState, ChangeEvent, FormEvent } from "react";
-import { Booking } from "@/types/booking";
+import { Booking } from "@/types/bookings";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import config from "@/config";
@@ -8,8 +8,12 @@ import FloatingLabelInput from "../Input";
 
 const CreateBooking: React.FC = () => {
   const [bookingData, setBookingData] = useState<Booking>({
-    _id: "",
+    id: 0, // Provide a default value
+    tour: "", // Default tour name
     name: "",
+    totDistance: 0, // Default total distance
+    days: 0, // Default days
+    status: "", // Default status
     email: "",
     mobile: "",
     livingCountry: "",
@@ -17,12 +21,12 @@ const CreateBooking: React.FC = () => {
     destination: "",
     arrivalDate: "",
     departureDate: "",
-    packageType: "",
+    packageType: "silver",
     totalPrice: 0,
   });
 
   const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     setBookingData((prevData) => ({
@@ -33,7 +37,7 @@ const CreateBooking: React.FC = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    console.log(bookingData); 
+    console.log(bookingData);
     try {
       const response = await fetch(`${config.API_BASE_URL}/api/bookings`, {
         method: "POST",
@@ -50,8 +54,12 @@ const CreateBooking: React.FC = () => {
       const createdBooking = await response.json();
       toast.success("Booking created successfully!");
       setBookingData({
-        _id: "",
+        id: 0, // Provide a default value for `id`
+        tour: "", // Provide a default value for `tour`
         name: "",
+        totDistance: 0, // Default value for `totDistance`
+        days: 0, // Default value for `days`
+        status: "", // Default value for `status`
         email: "",
         mobile: "",
         livingCountry: "",
@@ -170,7 +178,9 @@ const CreateBooking: React.FC = () => {
         </div>
 
         <div className="my-4 border-b border-gray">
-          <h1 className="text-3xl font-extrabold text-black-2">Package Details</h1>
+          <h1 className="text-3xl font-extrabold text-black-2">
+            Package Details
+          </h1>
         </div>
 
         <div className="space-y-2">
@@ -184,7 +194,9 @@ const CreateBooking: React.FC = () => {
               onChange={handleChange}
               className="mr-2"
             />
-            <label htmlFor="silver" className="text-gray-600">Silver</label>
+            <label htmlFor="silver" className="text-gray-600">
+              Silver
+            </label>
           </div>
           <div className="flex items-center">
             <input
@@ -196,7 +208,9 @@ const CreateBooking: React.FC = () => {
               onChange={handleChange}
               className="mr-2"
             />
-            <label htmlFor="gold" className="text-gray-600">Gold</label>
+            <label htmlFor="gold" className="text-gray-600">
+              Gold
+            </label>
           </div>
           <div className="flex items-center">
             <input
@@ -208,7 +222,9 @@ const CreateBooking: React.FC = () => {
               onChange={handleChange}
               className="mr-2"
             />
-            <label htmlFor="platinum" className="text-gray-600">Platinum</label>
+            <label htmlFor="platinum" className="text-gray-600">
+              Platinum
+            </label>
           </div>
         </div>
 

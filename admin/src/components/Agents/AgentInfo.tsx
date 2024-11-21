@@ -102,7 +102,7 @@ const AgentInfo: React.FC<InfoProps> = ({ agentId }) => {
                   <InfoCard label="Status" value={agent.address} />
                   <InfoCard label="Status" value={agent.phone} />
                   <InfoCard label="Status" value={agent.email} />
-                  <InfoCard label="Status" value={agent.secondaryPhone} />
+                  <InfoCard label="Status" value={agent.phone} />
                 </div>
               </div>
             </div>

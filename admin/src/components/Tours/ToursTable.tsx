@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Breadcrumb from "../Breadcrumbs/Breadcrumb";
 import { Tour } from "@/types/tours";
 import CreateTourForm from "./createTourForm";
+import UpdateTourForm from "./UpdateTourForm";
 import SideModel from "../Modal/SideModel";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -22,6 +23,7 @@ const ToursTable = () => {
 
   const [tours, setTours] = useState<Tour[]>([]);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showUpdateForm, setShowUpdateForm] = useState(false);
   const [showInclusionForm, setShowInclusionForm] = useState(false);
   const [showTourInfo, setShowTourInfo] = useState(false);
   const [selectedTourId, setSelectedTourId] = useState<string | null>(null);
@@ -59,8 +61,9 @@ const ToursTable = () => {
     if (tour) {
       setSelectedTourData(tour);
       setEditMode(true);
-      setShowCreateForm(true);
+      setShowUpdateForm(true);
     }
+    // console.log(tour);
   };
 
   const handleDeleteTour = async (tourId: string) => {
@@ -81,7 +84,7 @@ const ToursTable = () => {
               `${config.API_BASE_URL}/api/tours/${tourId}`,
               {
                 method: "DELETE",
-              }
+              },
             );
 
             if (!response.ok) {
@@ -108,7 +111,7 @@ const ToursTable = () => {
   const handleTourCreated = (newTour: Tour) => {
     if (editMode) {
       setTours((prevTours) =>
-        prevTours.map((tour) => (tour._id === newTour._id ? newTour : tour))
+        prevTours.map((tour) => (tour._id === newTour._id ? newTour : tour)),
       );
     } else {
       setTours((prevTours) => [...prevTours, newTour]);
@@ -117,6 +120,8 @@ const ToursTable = () => {
     setEditMode(false);
     setSelectedTourData(null);
   };
+
+  // console.log(selectedTourData);
 
   return (
     <div>
@@ -127,16 +132,32 @@ const ToursTable = () => {
         onClick={() => setShowCreateForm(true)}
       />
 
-      <SideModel isOpen={showCreateForm} onClose={() => setShowCreateForm(false)}>
+      <SideModel
+        isOpen={showCreateForm}
+        onClose={() => setShowCreateForm(false)}
+      >
         <CreateTourForm
-          onTourCreated={handleTourCreated}
           tourData={selectedTourData}
+          onTourCreated={handleTourCreated}
         />
       </SideModel>
 
-      <SideModel isOpen={showInclusionForm} onClose={() => setShowInclusionForm(false)}>
-        
-        <CreateInclusion tourId={selectedTourId}  /> {/* Pass selectedTourId */}
+      <SideModel
+        isOpen={showInclusionForm}
+        onClose={() => setShowInclusionForm(false)}
+      >
+        <CreateInclusion tourId={selectedTourId} /> {/* Pass selectedTourId */}
+      </SideModel>
+
+      <SideModel
+        isOpen={showUpdateForm}
+        onClose={() => setShowUpdateForm(false)}
+      >
+        {selectedTourData ? (
+          <UpdateTourForm tourData={selectedTourData} />
+        ) : (
+          <p>Loading tour data...</p>
+        )}
       </SideModel>
 
       <div className="rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
@@ -144,40 +165,71 @@ const ToursTable = () => {
           <table className="w-full table-auto">
             <thead>
               <tr className="bg-gray-2 text-left dark:bg-meta-4">
-                <th className="min-w-[150px] px-4 py-4 font-medium text-black dark:text-white xl:pl-11">#</th>
-                <th className="min-w-[150px] px-4 py-4 font-medium text-black dark:text-white">Tour Name</th>
-                <th className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white">Participants</th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">Price</th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">Days</th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">Action</th>
+                <th className="min-w-[150px] px-4 py-4 font-medium text-black dark:text-white xl:pl-11">
+                  #
+                </th>
+                <th className="min-w-[150px] px-4 py-4 font-medium text-black dark:text-white">
+                  Tour Name
+                </th>
+                <th className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white">
+                  Participants
+                </th>
+                <th className="px-4 py-4 font-medium text-black dark:text-white">
+                  Price
+                </th>
+                <th className="px-4 py-4 font-medium text-black dark:text-white">
+                  Days
+                </th>
+                <th className="px-4 py-4 font-medium text-black dark:text-white">
+                  Action
+                </th>
               </tr>
             </thead>
             <tbody>
               {tours.map((tour, index) => (
                 <tr key={tour._id}>
                   <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark xl:pl-11">
-                    <h5 className="font-medium text-black dark:text-white">{index + 1}</h5>
+                    <h5 className="font-medium text-black dark:text-white">
+                      {index + 1}
+                    </h5>
                   </td>
                   <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                    <p className="text-black dark:text-white">{tour.tourName}</p>
+                    <p className="text-black dark:text-white">
+                      {tour.tourName}
+                    </p>
                   </td>
                   <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                    <p className="text-black dark:text-white">{tour.participants}</p>
+                    <p className="text-black dark:text-white">
+                      {tour.participants}
+                    </p>
                   </td>
                   <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                    <p className="text-black dark:text-white">{formatter.format(tour.tourPrice)}</p>
+                    <p className="text-black dark:text-white">
+                      {formatter.format(tour.tourPrice)}
+                    </p>
                   </td>
                   <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                    <p className="text-black dark:text-white">{tour.noOfDays}</p>
+                    <p className="text-black dark:text-white">
+                      {tour.noOfDays}
+                    </p>
                   </td>
                   <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                    <button className="btn btn-info mx-1" onClick={() => handleShowTourInfo(tour._id)}>
+                    <button
+                      className="btn btn-info mx-1"
+                      onClick={() => handleShowTourInfo(tour._id)}
+                    >
                       <FaEye />
                     </button>
-                    <button className="btn btn-info mx-1" onClick={() => handleEditTour(tour._id)}>
+                    <button
+                      className="btn btn-info mx-1"
+                      onClick={() => handleEditTour(tour._id)}
+                    >
                       <FaPencilAlt />
                     </button>
-                    <button className="btn btn-info mx-1" onClick={() => handleDeleteTour(tour._id)}>
+                    <button
+                      className="btn btn-info mx-1"
+                      onClick={() => handleDeleteTour(tour._id)}
+                    >
                       <FaTrash />
                     </button>
                     <button

@@ -42,7 +42,7 @@ const CreateForm: React.FC<CreateFormProps> = ({
     const formData = new FormData();
     for (const key in agentData) {
       if (Object.prototype.hasOwnProperty.call(agentData, key)) {
-        formData.append(key, agentData[key]);
+        formData.append(key, agentData[key as keyof Agent] as string);
       }
     }
 

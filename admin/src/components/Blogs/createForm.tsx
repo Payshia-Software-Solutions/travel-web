@@ -118,9 +118,10 @@ const CreateForm: React.FC<CreateBlogFormProps> = ({
     const formData = new FormData();
     for (const key in blogData) {
       if (Object.prototype.hasOwnProperty.call(blogData, key)) {
-        formData.append(key, blogData[key]);
+        formData.append(key, blogData[key as keyof Blog] as string);
       }
     }
+
     if (imageFile) {
       formData.append("image", imageFile);
     }

@@ -1,6 +1,6 @@
 "use client";
 import { useState, ChangeEvent, FormEvent } from "react";
-import { Booking } from "@/types/booking"; // Ensure this Booking type has all your fields
+import { Booking } from "@/types/bookings"; // Ensure this Booking type has all your fields
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import config from "@/config";
@@ -127,7 +127,7 @@ const UpdateBookingForm: React.FC<UpdateBookingFormProps> = ({
             <option value="sri lanka">Sri Lanka</option>
             <option value="india">India</option>
             <option value="Australia">Australia</option>
-          
+
             <option value="United States">United States</option>
             {/* Add more options as needed */}
           </select>

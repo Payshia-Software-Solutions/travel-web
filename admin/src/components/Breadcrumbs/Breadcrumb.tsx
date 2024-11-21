@@ -1,13 +1,13 @@
 import Link from "next/link";
 interface BreadcrumbProps {
   pageName: string;
-  pageDesc: string;
+  pageDesc?: string;
   btnName?: string;
   onClick?: () => void;
 }
 const Breadcrumb = ({
   pageName,
-  pageDesc,
+  pageDesc = "",
   btnName,
   onClick,
 }: BreadcrumbProps) => {

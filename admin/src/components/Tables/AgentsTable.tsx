@@ -1,5 +1,5 @@
 import Breadcrumb from "../Breadcrumbs/Breadcrumb";
-import { AGENTS } from "@/types/agents";
+import { Agent } from "@/types/agents";
 
 const packageData: AGENTS[] = [
   {

@@ -53,8 +53,6 @@ const AllTours = () => {
     fetchTours();
   }, []);
 
-
-
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -338,81 +336,79 @@ const AllTours = () => {
 
         <div className="grid gap-4 lg:grid-cols-3 lg:gap-8 col-span-3">
           {loading ? (
-              <div className="col-span-3 text-center">
-                <div>Tours are Loading... Please wait</div>
-              </div>
+            <div className="col-span-3 text-center">
+              <div>Tours are Loading... Please wait</div>
+            </div>
           ) : error ? (
-              <div className="col-span-3 text-center text-red-500">
-                {error}
-              </div>
+            <div className="col-span-3 text-center text-red-500">{error}</div>
           ) : (
-              tours.map((tour) => (
-                  <div key={tour._id} className="">
-                    <div className="tour-card">
-                      <div className="relative">
-                        <div className="h-[250px] rounded-xl">
-                          <img
-                              src={`${config.API_BASE_URL}/public/uploads/tours/${tour.tourCover}`}
-                              alt={tour.tourName}
-                              className="object-cover w-full h-full rounded-t-xl"
-                          />
+            tours.map((tour) => (
+              <div key={tour._id} className="">
+                <div className="tour-card">
+                  <div className="relative">
+                    <div className="h-[250px] rounded-xl">
+                      <img
+                        src={`${config.API_BASE_URL}/public/${tour.tourCover}`}
+                        alt={tour.tourName}
+                        className="object-cover w-full h-full rounded-t-xl"
+                      />
+                    </div>
+
+                    <div className="blue-div flex justify-center items-center">
+                      <div className="package-info flex items-center">
+                        <div className="flex items-center">
+                          <FaCalendarMinus className="bluediv-icons" />
+                          <p className="bluediv-text ml-1 text-nowrap">
+                            {tour.noOfDays}D
+                          </p>
+                        </div>
+                        <div className="vl"></div>
+                        <div className="flex items-center">
+                          <FaMapMarkedAlt className="bluediv-icons" />
+                          <p className="bluediv-text ml-1">{tour.basePlace}</p>
                         </div>
 
-                        <div className="blue-div flex justify-center items-center">
-                          <div className="package-info flex items-center">
-                            <div className="flex items-center">
-                              <FaCalendarMinus className="bluediv-icons"/>
-                              <p className="bluediv-text ml-1 text-nowrap">
-                                {tour.noOfDays}D
-                              </p>
-                            </div>
-                            <div className="vl"></div>
-                            <div className="flex items-center">
-                              <FaMapMarkedAlt className="bluediv-icons"/>
-                              <p className="bluediv-text ml-1">{tour.basePlace}</p>
-                            </div>
-
-                            <div className="vl"></div>
-                            <div className="flex items-center">
-                              <HiUsers className="bluediv-icons"/>
-                              <p className="bluediv-text ml-1 text-nowrap">
-                                {tour.participants}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="tour-card-content shadow-sm">
-                        <a href={`/tours/${tour._id}`}>
-                          <h5 className="text-xl font-bold mt-3 pl-3">
-                            {tour.tourName}
-                          </h5>
-                        </a>
-                        <div className="text-xl pl-3 font-bold text-end">
-                          ${tour.tourPrice}
-                        </div>
-
-                        <p className="text-justify mt-2 pl-3 pr-3">
-                          {tour.tourDetails}
-                        </p>
-                        <div className="rtr-bottom-div flex justify-around rounded pt-1 pb-1 mt-3">
-                          <a href={`/tours/${tour.slug}`}>
-                            <button className="btn rtr-book-now flex py-2 px-4">
-                              Open{" "}
-                              <FaArrowRight className="bottom-button-icon ml-2 mt-1 "/>
-                            </button>
-                          </a>
-                          <div className="rtr-vl"></div>
-                          <button className="btn rtr-wish-list flex py-2 px-4">
-                            Wish List{" "}
-                            <FaRegHeart className="bottom-button-icon ml-2 mt-1"/>
-                          </button>
+                        <div className="vl"></div>
+                        <div className="flex items-center">
+                          <HiUsers className="bluediv-icons" />
+                          <p className="bluediv-text ml-1 text-nowrap">
+                            {tour.participants}
+                          </p>
                         </div>
                       </div>
                     </div>
                   </div>
-              ))
+
+                  <div className="tour-card-content shadow-sm">
+                    <a href={`/tours/${tour.slug}`}>
+                      <h5 className="text-xl font-bold mt-3 pl-3">
+                        {tour.tourName}
+                      </h5>
+                    </a>
+                    <div className="text-xl pl-3 font-bold text-end">
+                      ${tour.tourPrice}
+                    </div>
+
+                    <p className="text-justify mt-2 pl-3 pr-3">
+                      {tour.tourDetails}
+                    </p>
+                    <div className="rtr-bottom-div flex justify-around rounded pt-1 pb-1 mt-3">
+                      <a href={`/tours/${tour.slug}`}>
+                        <button className="btn rtr-book-now flex py-2 px-4">
+                          Open{" "}
+                          <FaArrowRight className="bottom-button-icon ml-2 mt-1 " />
+                        </button>
+                      </a>
+                      <div className="rtr-vl"></div>
+                      <button className="btn rtr-wish-list flex py-2 px-4">
+                        Wish List{" "}
+                        <FaRegHeart className="bottom-button-icon ml-2 mt-1" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
           )}
         </div>
         {/* ================ Tour Cards ================ */}
@@ -421,16 +417,16 @@ const AllTours = () => {
           <div className="d-flex justify-content-center mt-4">
             <Pagination>
               {Array.from(
-                  {length: Math.ceil(filteredTours.length / toursPerPage)},
-                  (_, i) => (
-                      <Pagination.Item
-                          key={i + 1}
-                          active={i + 1 === currentPage}
-                          onClick={() => paginate(i + 1)}
-                      >
-                        {i + 1}
-                      </Pagination.Item>
-                  )
+                { length: Math.ceil(filteredTours.length / toursPerPage) },
+                (_, i) => (
+                  <Pagination.Item
+                    key={i + 1}
+                    active={i + 1 === currentPage}
+                    onClick={() => paginate(i + 1)}
+                  >
+                    {i + 1}
+                  </Pagination.Item>
+                )
               )}
             </Pagination>
           </div>

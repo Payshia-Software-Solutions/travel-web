@@ -14,6 +14,7 @@ import CreateInclusion from "./CreateInclusion"; // Import Inclusion component
 import Swal from "sweetalert2";
 import "./styles.css";
 import { FaI } from "react-icons/fa6";
+import UpdateTourForm from "./UpdateTourForm"; // Import the UpdateTourForm
 
 const ToursTable = () => {
   const formatter = new Intl.NumberFormat("en-US", {
@@ -26,9 +27,9 @@ const ToursTable = () => {
   const [showUpdateForm, setShowUpdateForm] = useState(false);
   const [showInclusionForm, setShowInclusionForm] = useState(false);
   const [showTourInfo, setShowTourInfo] = useState(false);
-  const [selectedTourId, setSelectedTourId] = useState<string | null>(null);
-  const [editMode, setEditMode] = useState(false);
-  const [selectedTourData, setSelectedTourData] = useState<Tour | null>(null);
+  const [showUpdateForm, setShowUpdateForm] = useState(false); // New state for controlling the UpdateTourForm modal
+  const [selectedTourId, setSelectedTourId] = useState<string | null>(null); // Added state to store the selected tour id
+  const [selectedTourData, setSelectedTourData] = useState<Tour | null>(null); // Store selected tour data for update
 
   const fetchTours = () => {
     fetch(`${config.API_BASE_URL}/api/tours`)
@@ -52,7 +53,7 @@ const ToursTable = () => {
   }, []);
 
   const handleShowTourInfo = (tourId: string) => {
-    setSelectedTourId(tourId);
+    setSelectedTourId(tourId); // Set the selected tour id for viewing
     setShowTourInfo(true);
   };
 
@@ -61,9 +62,8 @@ const ToursTable = () => {
     if (tour) {
       setSelectedTourData(tour);
       setEditMode(true);
-      setShowUpdateForm(true);
+      setShowCreateForm(true);
     }
-    // console.log(tour);
   };
 
   const handleDeleteTour = async (tourId: string) => {
@@ -103,9 +103,14 @@ const ToursTable = () => {
   };
 
   const handleShowInclusion = (tourId: string) => {
-    console.log("Selected Tour ID:", tourId);
-    setSelectedTourId(tourId);
+    setSelectedTourId(tourId); // Set the selected tour id for inclusion form
     setShowInclusionForm(true);
+  };
+
+  const handleShowUpdateForm = (tour: Tour) => {
+    setSelectedTourId(tour._id); // Set the selected tour id
+    setSelectedTourData(tour); // Set the selected tour data
+    setShowUpdateForm(true); // Open the UpdateTourForm modal
   };
 
   const handleTourCreated = (newTour: Tour) => {
@@ -147,17 +152,6 @@ const ToursTable = () => {
         onClose={() => setShowInclusionForm(false)}
       >
         <CreateInclusion tourId={selectedTourId} /> {/* Pass selectedTourId */}
-      </SideModel>
-
-      <SideModel
-        isOpen={showUpdateForm}
-        onClose={() => setShowUpdateForm(false)}
-      >
-        {selectedTourData ? (
-          <UpdateTourForm tourData={selectedTourData} />
-        ) : (
-          <p>Loading tour data...</p>
-        )}
       </SideModel>
 
       <div className="rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
@@ -234,7 +228,7 @@ const ToursTable = () => {
                     </button>
                     <button
                       className="btn btn-info mx-1"
-                      onClick={() => handleShowInclusion(tour._id)} // Toggles Inclusion form with tourId
+                      onClick={() => handleShowInclusion(tour._id)}
                     >
                       <FaI />
                     </button>
@@ -245,6 +239,7 @@ const ToursTable = () => {
           </table>
         </div>
       </div>
+
       <ToastContainer
         position="top-right"
         autoClose={3000}

@@ -119,18 +119,19 @@ function GetQuote({tour}) {
   // Handle form submission
   const handleSubmit = async () => {
     try {
-      // Combine country code with mobile number
       const fullMobileNumber = `${formData.countryCode}${formData.mobile}`;
       const payload = { ...formData, mobile: fullMobileNumber };
-
+  
       const response = await fetch("http://localhost:5000/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
+        
       });
-
+      console.log(payload);
+  
       if (response.ok) {
-        alert("Booking created successfully!");
+        alert("Booking created successfully! An email notification has been sent.");
       } else {
         alert("Failed to create booking.");
         console.error(await response.json());
@@ -139,6 +140,9 @@ function GetQuote({tour}) {
       console.error("Error:", error);
     }
   };
+  
+
+  
 
   return (
     <div className="bg-white border border-blue-700 p-6 w-full mt-8 rounded-xl shadow-lg">
@@ -293,7 +297,7 @@ function GetQuote({tour}) {
         onClick={handleSubmit}
         className="bg-blue-600 text-white p-3 rounded-lg w-full flex items-center justify-center"
       >
-        Get Quote
+        Book Now 
         <AiOutlineArrowRight className="ml-2" />
       </button>
     </div>

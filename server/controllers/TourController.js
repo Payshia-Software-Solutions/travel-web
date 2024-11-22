@@ -34,123 +34,110 @@ const saveFile = (file, folder) => {
 // Create a New Tour
 const createTour = async (req, res) => {
   try {
-    // Handle file uploads
     upload.fields([
       { name: "tourCover", maxCount: 1 },
       { name: "tourGallery", maxCount: 5 },
     ])(req, res, async (err) => {
       if (err) {
-        return res
-          .status(400)
-          .json({ message: "Error uploading files", error: err.message });
-      }
-  try {
-    // Handle file uploads
-    upload.fields([
-      { name: "tourCover", maxCount: 1 },
-      { name: "tourGallery", maxCount: 5 },
-    ])(req, res, async (err) => {
-      if (err) {
-        return res
-          .status(400)
-          .json({ message: "Error uploading files", error: err.message });
+        return res.status(400).json({
+          message: "Error uploading files",
+          error: err.message,
+        });
       }
 
-      console.log("Uploaded Files:", req.files); // Debug uploaded files
-      console.log("Request Body:", req.body); // Debug request body
-      console.log("Uploaded Files:", req.files); // Debug uploaded files
-      console.log("Request Body:", req.body); // Debug request body
+      try {
+        console.log("Uploaded Files:", req.files); // Debug uploaded files
+        console.log("Request Body:", req.body); // Debug request body
 
-      const FixedCreatedBy = "66ae7fe4a9498f09f37f01cc";
-      const FixedUpdatedBy = "66ae7fe4a9498f09f37f01cc";
-      const FixedCreatedBy = "66ae7fe4a9498f09f37f01cc";
-      const FixedUpdatedBy = "66ae7fe4a9498f09f37f01cc";
+        const FixedCreatedBy = "66ae7fe4a9498f09f37f01cc";
+        const FixedUpdatedBy = "66ae7fe4a9498f09f37f01cc";
 
-      const {
-        dayPlans,
-        tourName,
-        highlightText,
-        tourDetails,
-        tourPrice,
-        participants,
-        noOfDays,
-        tags,
-        basePlace,
-        tourSchedule,
-        tourCategory,
-        isActive,
-      } = req.body;
+        const {
+          dayPlans,
+          tourName,
+          highlightText,
+          tourDetails,
+          tourPrice,
+          participants,
+          noOfDays,
+          tags,
+          basePlace,
+          tourSchedule,
+          tourCategory,
+          isActive,
+        } = req.body;
 
-      const requiredFields = [
-        "tourName",
-        "highlightText",
-        "tourDetails",
-        "tourPrice",
-        "participants",
-        "noOfDays",
-        "tourCategory",
-      ];
-      const missingFields = requiredFields.filter((field) => !req.body[field]);
+        const requiredFields = [
+          "tourName",
+          "highlightText",
+          "tourDetails",
+          "tourPrice",
+          "participants",
+          "noOfDays",
+          "tourCategory",
+        ];
+        const missingFields = requiredFields.filter(
+          (field) => !req.body[field]
+        );
 
-      if (missingFields.length > 0) {
-        return res
-          .status(400)
-          .json({ message: "Missing required fields", missingFields });
+        if (missingFields.length > 0) {
+          return res
+            .status(400)
+            .json({ message: "Missing required fields", missingFields });
+        }
+
+        const tourCoverFile = req.files?.tourCover?.[0] || null;
+        const tourGalleryFiles = req.files?.tourGallery || [];
+
+        const imageCoverPath = tourCoverFile
+          ? saveFile(tourCoverFile, "tourCovers")
+          : "";
+        const galleryPaths = tourGalleryFiles.map((file) =>
+          saveFile(file, "tourGalleries")
+        );
+
+        const tourCount = await Tour.countDocuments();
+        const tourId = `TOUR-${tourCount + 1}`;
+        const slug = slugify(tourName, { lower: true, strict: true });
+
+        const slugExists = await Tour.findOne({ slug });
+        if (slugExists) {
+          return res
+            .status(400)
+            .json({ message: "A tour with this name already exists" });
+        }
+
+        const newTour = new Tour({
+          tourId,
+          dayPlans,
+          tourName,
+          slug,
+          highlightText,
+          tourDetails,
+          tourPrice: parseFloat(tourPrice),
+          participants: parseInt(participants),
+          tourCover: imageCoverPath,
+          tourGallery: galleryPaths,
+          noOfDays: parseInt(noOfDays),
+          tags: tags ? tags.split(",").map((tag) => tag.trim()) : [],
+          basePlace,
+          tourSchedule,
+          tourCategory,
+          createdBy: FixedCreatedBy,
+          updatedBy: FixedUpdatedBy,
+          isActive: isActive === "true" || Boolean(isActive),
+        });
+
+        await newTour.save();
+        res.status(201).json(newTour);
+      } catch (error) {
+        console.error("Error creating tour:", error.message);
+        res.status(500).json({ message: "Server error" });
       }
-
-      const tourCoverFile = req.files.tourCover ? req.files.tourCover[0] : null;
-      const tourGalleryFiles = req.files.tourGallery || [];
-
-      console.log("Tour Cover File:", tourCoverFile); // Debug tourCover file
-      console.log("Gallery Files:", tourGalleryFiles); // Debug tourGallery files
-
-      const imageCoverPath = tourCoverFile
-        ? saveFile(tourCoverFile, "tourCovers")
-        : "";
-      const galleryPaths = tourGalleryFiles.map((file) =>
-        saveFile(file, "tourGalleries")
-      );
-
-      console.log("Image Cover Path:", imageCoverPath); // Debug saved path
-
-      const tourCount = await Tour.countDocuments();
-      const tourId = `TOUR-${tourCount + 1}`;
-      const slug = slugify(tourName, { lower: true, strict: true });
-
-      const slugExists = await Tour.findOne({ slug });
-      if (slugExists) {
-        return res
-          .status(400)
-          .json({ message: "A tour with this name already exists" });
-      }
-
-      const newTour = new Tour({
-        tourId,
-        dayPlans,
-        tourName,
-        slug,
-        highlightText,
-        tourDetails,
-        tourPrice: parseFloat(tourPrice),
-        participants: parseInt(participants),
-        tourCover: imageCoverPath,
-        tourGallery: galleryPaths,
-        noOfDays: parseInt(noOfDays),
-        tags: tags.split(",").map((tag) => tag.trim()),
-        basePlace,
-        tourSchedule,
-        tourCategory,
-        createdBy: FixedCreatedBy,
-        updatedBy: FixedUpdatedBy,
-        isActive: isActive === "true" || isActive === true,
-      });
-
-      await newTour.save();
-      res.status(201).json(newTour);
     });
   } catch (error) {
-    console.error("Error creating tour:", error.message);
-    res.status(500).json({ message: "Server error" });
+    console.error("Outer error:", error.message);
+    res.status(500).json({ message: "Outer server error" });
   }
 };
 
@@ -182,53 +169,121 @@ const getTourBySlug = async (req, res) => {
 };
 
 // Update a Tour by ID
+
+// Update a Tour by ID
 const updateTour = async (req, res) => {
-    try {
-        upload.fields([{ name: "tourCover", maxCount: 1 }, { name: "tourGallery", maxCount: 5 }])(req, res, async (err) => {
-            if (err) {
-                return res.status(400).json({ message: "Error uploading files", error: err.message });
-            }
-
-            const { tourName, ...otherFields } = req.body;
-
-            let slug;
-            if (tourName) {
-                slug = slugify(tourName, { lower: true, strict: true });
-
-                const slugExists = await Tour.findOne({ slug, _id: { $ne: req.params.id } });
-                if (slugExists) {
-                    return res.status(400).json({ message: "A tour with this name already exists" });
-                }
-            }
-
-            const tourCoverFile = req.files.tourCover ? req.files.tourCover[0] : null;
-            const tourGalleryFiles = req.files.tourGallery || [];
-
-            const imageCoverPath = tourCoverFile ? saveFile(tourCoverFile, "tourCovers") : undefined;
-            const galleryPaths = tourGalleryFiles.map(file => saveFile(file, "tourGalleries"));
-
-            const updatedTour = await Tour.findByIdAndUpdate(
-                req.params.id,
-                {
-                    ...otherFields,
-                    ...(slug && { slug }),
-                    ...(imageCoverPath && { tourCover: imageCoverPath }),
-                    ...(galleryPaths.length > 0 && { tourGallery: galleryPaths })
-                },
-                { new: true }
-            );
-
-            if (!updatedTour) {
-                return res.status(404).json({ message: "Tour not found" });
-            }
-
-            res.status(200).json(updatedTour);
+  try {
+    upload.fields([
+      { name: "tourCover", maxCount: 1 },
+      { name: "tourGallery", maxCount: 5 },
+    ])(req, res, async (err) => {
+      if (err) {
+        return res.status(400).json({
+          message: "Error uploading files",
+          error: err.message,
         });
-    } catch (error) {
+      }
+
+      try {
+        const { slug } = req.params; // Get slug from request params
+
+        // Find the tour by slug
+        const tour = await Tour.findOne({ slug });
+        if (!tour) {
+          return res.status(404).json({ message: "Tour not found" });
+        }
+
+        console.log("Uploaded Files:", req.files); // Debug uploaded files
+        console.log("Request Body:", req.body); // Debug request body
+
+        const {
+          dayPlans,
+          tourName,
+          highlightText,
+          tourDetails,
+          tourPrice,
+          participants,
+          noOfDays,
+          tags,
+          basePlace,
+          tourSchedule,
+          tourCategory,
+          isActive,
+        } = req.body;
+
+        // Handle file uploads
+        const tourCoverFile = req.files?.tourCover?.[0] || null;
+        const tourGalleryFiles = req.files?.tourGallery || [];
+
+        // Update cover image if provided
+        if (tourCoverFile) {
+          const newCoverPath = saveFile(tourCoverFile, "tourCovers");
+          if (tour.tourCover) {
+            // Remove the old cover image
+            const oldCoverPath = path.join(__dirname, "../public", tour.tourCover);
+            if (fs.existsSync(oldCoverPath)) {
+              fs.unlinkSync(oldCoverPath);
+            }
+          }
+          tour.tourCover = newCoverPath;
+        }
+
+        // Update gallery images if provided
+        if (tourGalleryFiles.length > 0) {
+          const newGalleryPaths = tourGalleryFiles.map((file) =>
+            saveFile(file, "tourGalleries")
+          );
+
+          // Remove old gallery images
+          if (tour.tourGallery && tour.tourGallery.length > 0) {
+            tour.tourGallery.forEach((galleryPath) => {
+              const fullPath = path.join(__dirname, "../public", galleryPath);
+              if (fs.existsSync(fullPath)) {
+                fs.unlinkSync(fullPath);
+              }
+            });
+          }
+
+          tour.tourGallery = newGalleryPaths;
+        }
+
+        // Update other fields
+        tour.tourName = tourName || tour.tourName;
+        tour.highlightText = highlightText || tour.highlightText;
+        tour.tourDetails = tourDetails || tour.tourDetails;
+        tour.tourPrice = tourPrice ? parseFloat(tourPrice) : tour.tourPrice;
+        tour.participants = participants
+          ? parseInt(participants)
+          : tour.participants;
+        tour.noOfDays = noOfDays ? parseInt(noOfDays) : tour.noOfDays;
+        tour.tags = tags
+          ? tags.split(",").map((tag) => tag.trim())
+          : tour.tags;
+        tour.basePlace = basePlace || tour.basePlace;
+        tour.tourSchedule = tourSchedule || tour.tourSchedule;
+        tour.tourCategory = tourCategory || tour.tourCategory;
+        tour.isActive = isActive === "true" || Boolean(isActive);
+        tour.dayPlans = dayPlans || tour.dayPlans;
+
+        // Save the updated tour
+        const updatedTour = await tour.save();
+
+        res.status(200).json({
+          message: "Tour updated successfully",
+          tour: updatedTour,
+        });
+      } catch (error) {
         console.error("Error updating tour:", error.message);
         res.status(500).json({ message: "Server error" });
-    }
+      }
+    });
+  } catch (error) {
+    console.error("Outer error:", error.message);
+    res.status(500).json({ message: "Outer server error" });
+  }
 };
+
+
 
 // Delete a Tour by ID
 const deleteTour = async (req, res) => {
@@ -244,60 +299,34 @@ const deleteTour = async (req, res) => {
   }
 };
 
-const updateTourById = async (req, res) => {
-    try {
-      const { tourId } = req.params; // Extract the tourId from the request parameters
-      const { tourName, ...updateFields } = req.body; // Separate tourName for slug logic
-  
-      // Find the existing tour
-      const existingTour = await Tour.findOne({ tourId });
-      if (!existingTour) {
-        return res.status(404).json({ message: "Tour not found" });
-      }
-  
-      let slug;
-      if (tourName && tourName !== existingTour.tourName) {
-        // Generate a new slug if the tourName changes
-        slug = slugify(tourName, { lower: true, strict: true });
-  
-        // Check if the new slug already exists for another tour
-        const slugExists = await Tour.findOne({
-          slug,
-          tourId: { $ne: tourId },
-        });
-        if (slugExists) {
-          return res.status(400).json({ message: "A tour with this name already exists" });
-        }
-      }
-  
-      // Prepare the update payload
-      const updatePayload = {
-        ...updateFields,
-        ...(slug && { slug }),
-        ...(tourName && { tourName }),
-      };
-  
-      // Update the tour
-      const updatedTour = await Tour.findOneAndUpdate(
-        { tourId },
-        updatePayload,
-        { new: true } // Return the updated document
-      );
-  
-      if (!updatedTour) {
-        return res.status(404).json({ message: "Tour not found" });
-      }
-  
-      res.status(200).json(updatedTour);
-    } catch (error) {
-      console.error("Error updating tour:", error.message);
-      res.status(500).json({ message: "Server error" });
+// Retrieve a Single Tour by Tour ID
+const getTourById = async (req, res) => {
+  try {
+    const { tourId } = req.params;
+
+    // Find the tour using the tourId field
+    const tour = await Tour.findOne({ tourId });
+
+    if (!tour) {
+      return res.status(404).json({ message: "Tour not found" });
     }
-  };
+
+    res.status(200).json(tour);
+  } catch (error) {
+    console.error("Error fetching tour by ID:", error.message);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+
+
+
 module.exports = {
-    createTour,
-    getAllTours,
-    getTourBySlug,
-    updateTour,
-    deleteTour
+  createTour,
+  getAllTours,
+  getTourBySlug,
+  updateTour,
+  deleteTour,
+ 
 };

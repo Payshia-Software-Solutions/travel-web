@@ -2,144 +2,118 @@
 import { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 import FloatingLabelInput from "../Input";
 
-function UpdateTourForm({ initialData = null, onSubmitSuccess }) {
+function UpdateTourForm({ slug }) {
+  console.log(slug)
   const [formData, setFormData] = useState({
     tourName: "",
     highlightText: "",
     category: "",
     tags: "",
+    tourCover: null,
     participants: "",
     tourPrice: "",
     noOfDays: "",
     tourDetails: "",
     dayPlans: [],
-    tourCover: "",
   });
 
+  // Fetch existing tour data
   useEffect(() => {
-    if (initialData) {
-      setFormData({
-        ...initialData,
-        tags: initialData.tags?.join(", ") || "",
-        tourCover: "",
-      });
-    }
-  }, [initialData]);
+    const fetchTourData = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/tours/${slug}`);
+        const data = await response.json();
+        if (response.ok) {
+          setFormData({
+            tourName: data.tourName || "",
+            highlightText: data.highlightText || "",
+            category: data.tourCategory || "",
+            tags: data.tags ? data.tags.join(", ") : "",
+            participants: data.participants || "",
+            tourPrice: data.tourPrice || "",
+            noOfDays: data.noOfDays || "",
+            tourDetails: data.tourDetails || "",
+            dayPlans: data.dayPlans || [],
+          });
+        } else {
+          toast.error(data.message || "Failed to fetch tour data");
+        }
+      } catch (error) {
+        toast.error("Error fetching tour data");
+      }
+    };
 
-  const handleChange = (e) => {
+    fetchTourData();
+  }, [slug]);
+
+  // Handle input changes
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Handle file input
   const handleFileChange = (e) => {
-    const { files } = e.target;
-    if (files && files[0]) {
-      setFormData((prevData) => ({
-        ...prevData,
-        tourCover: files[0],
-      }));
-    }
+    setFormData((prev) => ({ ...prev, tourCover: e.target.files[0] }));
   };
 
-  const handleAddDayPlanClick = () => {
-    setFormData((prevData) => ({
-      ...prevData,
-      dayPlans: [...prevData.dayPlans, { dayId: "", dayTitle: "", dayPlan: "" }],
-    }));
-  };
-
+  // Handle day plan changes
   const handleDayPlanChange = (index, e) => {
     const { name, value } = e.target;
     const updatedDayPlans = [...formData.dayPlans];
-    updatedDayPlans[index][name] = value;
+    updatedDayPlans[index] = { ...updatedDayPlans[index], [name]: value };
+    setFormData((prev) => ({ ...prev, dayPlans: updatedDayPlans }));
+  };
 
-    setFormData((prevData) => ({
-      ...prevData,
-      dayPlans: updatedDayPlans,
+  // Add a new day plan
+  const addDayPlan = () => {
+    setFormData((prev) => ({
+      ...prev,
+      dayPlans: [...prev.dayPlans, { dayId: "", dayTitle: "", dayPlan: "" }],
     }));
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.tourCover && !initialData) {
-      toast.error("Tour Cover is required.");
-      return;
-    }
-
-    const formDataObj = new FormData();
-    formDataObj.append("tourName", formData.tourName);
-    formDataObj.append("highlightText", formData.highlightText);
-    formDataObj.append("tourDetails", formData.tourDetails);
-    formDataObj.append("tourPrice", formData.tourPrice);
-    formDataObj.append("participants", formData.participants);
-    formDataObj.append("noOfDays", formData.noOfDays);
-    formData.dayPlans.forEach((dayPlan, index) => {
-      formDataObj.append(`dayPlans[${index}][dayId]`, dayPlan.dayId);
-      formDataObj.append(`dayPlans[${index}][dayTitle]`, dayPlan.dayTitle);
-      formDataObj.append(`dayPlans[${index}][dayPlan]`, dayPlan.dayPlan);
+    const formDataToSubmit = new FormData();
+    Object.keys(formData).forEach((key) => {
+      if (key === "tags") {
+        formDataToSubmit.append(
+          key,
+          formData[key].split(",").map((tag) => tag.trim()).join(",")
+        );
+      } else if (key === "dayPlans") {
+        formDataToSubmit.append(key, JSON.stringify(formData[key]));
+      } else if (key === "tourCover" && formData[key]) {
+        formDataToSubmit.append(key, formData[key]);
+      } else {
+        formDataToSubmit.append(key, formData[key]);
+      }
     });
-    formDataObj.append(
-      "tags",
-      formData.tags.split(",").map((tag) => tag.trim())
-    );
-
-    if (formData.tourCover instanceof File) {
-      formDataObj.append("tourCover", formData.tourCover);
-    }
-
-    const createdBy = "66ae7fe4a9498f09f37f01cc";
-    formDataObj.append("createdBy", createdBy);
-    formDataObj.append("tourCategory", formData.category);
 
     try {
-      const endpoint = initialData
-        ? `http://localhost:5000/api/tours/${initialData._id}`
-        : "http://localhost:5000/api/tours";
-      const method = initialData ? "PUT" : "POST";
-
-      const response = await fetch(endpoint, {
-        method,
-        body: formDataObj,
+      const response = await fetch(`http://localhost:5000/api/tours/${slug}`, {
+        method: "PUT",
+        body: formDataToSubmit,
       });
+      const data = await response.json();
 
       if (response.ok) {
-        const message = initialData
-          ? "Tour updated successfully!"
-          : "Tour created successfully!";
-        toast.success(message);
-        setFormData({
-          tourName: "",
-          highlightText: "",
-          category: "",
-          tags: "",
-          participants: "",
-          tourPrice: "",
-          noOfDays: "",
-          tourDetails: "",
-          dayPlans: [],
-          tourCover: "",
-        });
-        if (onSubmitSuccess) onSubmitSuccess();
+        toast.success("Tour updated successfully!");
       } else {
-        const errorData = await response.json();
-        toast.error("Error: " + errorData.message || "Failed to submit tour");
+        toast.error(data.message || "Failed to update the tour");
       }
     } catch (error) {
-      toast.error("Error: " + error.message);
+      toast.error("Error updating the tour");
     }
   };
 
   return (
     <div className="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-lg">
-      <h1 className="text-3xl font-bold text-gray-900 mb-4">Create a Tour</h1>
-      <p className="text-gray-600 mb-6">Please fill in the required information for your tour.</p>
-
+      <h1 className="text-3xl font-bold text-gray-900 mb-4">Update Tour</h1>
       <form onSubmit={handleSubmit} encType="multipart/form-data">
         {/* Basic Information */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
@@ -147,21 +121,21 @@ function UpdateTourForm({ initialData = null, onSubmitSuccess }) {
             id="tourName"
             name="tourName"
             value={formData.tourName}
-            onChange={handleChange}
+            onChange={handleInputChange}
             placeholder="Tour Name"
           />
           <FloatingLabelInput
             id="highlightText"
             name="highlightText"
             value={formData.highlightText}
-            onChange={handleChange}
+            onChange={handleInputChange}
             placeholder="Highlight Text"
           />
           <FloatingLabelInput
             id="category"
             name="category"
             value={formData.category}
-            onChange={handleChange}
+            onChange={handleInputChange}
             placeholder="Category"
           />
         </div>
@@ -171,10 +145,9 @@ function UpdateTourForm({ initialData = null, onSubmitSuccess }) {
           id="tags"
           name="tags"
           value={formData.tags}
-          onChange={handleChange}
+          onChange={handleInputChange}
           placeholder="Tags (comma-separated)"
         />
-
         <input
           type="file"
           name="tourCover"
@@ -190,7 +163,7 @@ function UpdateTourForm({ initialData = null, onSubmitSuccess }) {
             name="participants"
             type="number"
             value={formData.participants}
-            onChange={handleChange}
+            onChange={handleInputChange}
             placeholder="Participants"
           />
           <FloatingLabelInput
@@ -198,7 +171,7 @@ function UpdateTourForm({ initialData = null, onSubmitSuccess }) {
             name="tourPrice"
             type="number"
             value={formData.tourPrice}
-            onChange={handleChange}
+            onChange={handleInputChange}
             placeholder="Tour Price"
           />
           <FloatingLabelInput
@@ -206,7 +179,7 @@ function UpdateTourForm({ initialData = null, onSubmitSuccess }) {
             name="noOfDays"
             type="number"
             value={formData.noOfDays}
-            onChange={handleChange}
+            onChange={handleInputChange}
             placeholder="Number of Days"
           />
         </div>
@@ -219,7 +192,7 @@ function UpdateTourForm({ initialData = null, onSubmitSuccess }) {
             name="tourDetails"
             rows="5"
             value={formData.tourDetails}
-            onChange={handleChange}
+            onChange={handleInputChange}
             placeholder="Tour Details"
           ></textarea>
         </div>
@@ -228,7 +201,7 @@ function UpdateTourForm({ initialData = null, onSubmitSuccess }) {
         <div className="mb-6">
           <button
             type="button"
-            onClick={handleAddDayPlanClick}
+            onClick={addDayPlan}
             className="bg-blue-500 text-white py-2 px-4 rounded-md"
           >
             Add Day Plan
@@ -266,7 +239,7 @@ function UpdateTourForm({ initialData = null, onSubmitSuccess }) {
             type="submit"
             className="bg-black text-white py-3 px-6 rounded-lg"
           >
-            Submit Tour
+            Update Tour
           </button>
         </div>
       </form>

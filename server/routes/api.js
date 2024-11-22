@@ -19,8 +19,11 @@ const InclusionController = require("../controllers/inclusionController");
 router.post("/tours", TourController.createTour);
 router.get("/tours", TourController.getAllTours);
 router.get("/tours/:slug", TourController.getTourBySlug);
-router.put("/tours/:id", TourController.updateTourById);
+router.put("/tours/:slug" , TourController.updateTour);
 router.delete("/tours/:id", TourController.deleteTour);
+
+
+
 
 // Tour Category routes
 router.post("/tourcategories", TourCategoryController.createTourCategory);

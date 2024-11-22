@@ -19,7 +19,7 @@ const InclusionController = require("../controllers/inclusionController");
 router.post("/tours", TourController.createTour);
 router.get("/tours", TourController.getAllTours);
 router.get("/tours/:slug", TourController.getTourBySlug);
-router.put("/tours/:id", TourController.updateTourById);
+router.put("/tours/:id", TourController.updateTour);
 router.delete("/tours/:id", TourController.deleteTour);
 
 // Tour Category routes
@@ -96,14 +96,16 @@ router.get("/quotes/:id", GetQuoteController.getQuoteById);
 router.put("/quotes/:id", GetQuoteController.updateQuote);
 router.delete("/quotes/:id", GetQuoteController.deleteQuote);
 router.post("/inclusion", InclusionController.createInclusion);
- 
 
 //inclusion routes
-router.post("/inclusion",InclusionController.createInclusion);
+router.post("/inclusion", InclusionController.createInclusion);
 router.get("/inclusion", InclusionController.getInclusions);
 router.get("/inclusion/:id", InclusionController.getInclusionById);
 router.put("/inclusion/:id", InclusionController.updateInclusion);
 router.delete("/inclusion/:id", InclusionController.deleteInclusion);
-router.get("/inclusion/tour/:tourId", InclusionController.getInclusionsByTourId);
+router.get(
+  "/inclusion/tour/:tourId",
+  InclusionController.getInclusionsByTourId
+);
 
 module.exports = router;

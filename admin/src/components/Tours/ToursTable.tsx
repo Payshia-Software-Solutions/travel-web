@@ -14,7 +14,6 @@ import CreateInclusion from "./CreateInclusion"; // Import Inclusion component
 import Swal from "sweetalert2";
 import "./styles.css";
 import { FaI } from "react-icons/fa6";
-import UpdateTourForm from "./UpdateTourForm"; // Import the UpdateTourForm
 
 const ToursTable = () => {
   const formatter = new Intl.NumberFormat("en-US", {
@@ -27,7 +26,6 @@ const ToursTable = () => {
   const [showUpdateForm, setShowUpdateForm] = useState(false);
   const [showInclusionForm, setShowInclusionForm] = useState(false);
   const [showTourInfo, setShowTourInfo] = useState(false);
-  const [showUpdateForm, setShowUpdateForm] = useState(false); // New state for controlling the UpdateTourForm modal
   const [selectedTourId, setSelectedTourId] = useState<string | null>(null); // Added state to store the selected tour id
   const [selectedTourData, setSelectedTourData] = useState<Tour | null>(null); // Store selected tour data for update
 

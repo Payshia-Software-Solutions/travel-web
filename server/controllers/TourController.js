@@ -193,8 +193,7 @@ const updateTour = async (req, res) => {
           return res.status(404).json({ message: "Tour not found" });
         }
 
-        console.log("Uploaded Files:", req.files); // Debug uploaded files
-        console.log("Request Body:", req.body); // Debug request body
+      
 
         const {
           dayPlans,
@@ -210,6 +209,15 @@ const updateTour = async (req, res) => {
           tourCategory,
           isActive,
         } = req.body;
+
+        // Handle `dayPlans` parsing
+        if (dayPlans) {
+          try {
+            tour.dayPlans = typeof dayPlans === "string" ? JSON.parse(dayPlans) : dayPlans;
+          } catch (parseError) {
+            return res.status(400).json({ message: "Invalid dayPlans format" });
+          }
+        }
 
         // Handle file uploads
         const tourCoverFile = req.files?.tourCover?.[0] || null;
@@ -263,7 +271,6 @@ const updateTour = async (req, res) => {
         tour.tourSchedule = tourSchedule || tour.tourSchedule;
         tour.tourCategory = tourCategory || tour.tourCategory;
         tour.isActive = isActive === "true" || Boolean(isActive);
-        tour.dayPlans = dayPlans || tour.dayPlans;
 
         // Save the updated tour
         const updatedTour = await tour.save();

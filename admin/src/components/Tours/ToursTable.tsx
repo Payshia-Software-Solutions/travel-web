@@ -13,7 +13,7 @@ import CreateInclusion from "./CreateInclusion"; // Import Inclusion component
 import Swal from "sweetalert2";
 import "./styles.css";
 import UpdateTourForm from "./UpdateTourForm";
-
+import { FaI } from "react-icons/fa6";
 const ToursTable = () => {
   const formatter = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -53,11 +53,6 @@ const ToursTable = () => {
     return () => clearInterval(interval); // Clear interval on component unmount
   }, []);
 
-  // Show tour info modal
-  const handleShowTourInfo = (tourId: string) => {
-    setSelectedTourId(tourId);
-    setShowTourInfo(true);
-  };
 
   // Delete a tour
   const handleDeleteTour = async (tourId: string) => {
@@ -78,7 +73,7 @@ const ToursTable = () => {
               `${config.API_BASE_URL}/api/tours/${tourId}`,
               {
                 method: "DELETE",
-              }
+              },
             );
 
             if (!response.ok) {
@@ -101,6 +96,18 @@ const ToursTable = () => {
     setSelectedTourId(tourId);
     setShowInclusionForm(true);
   };
+  // Show tour info modal
+  const handleShowTourInfo = (tour: Tour) => {
+    if (!tour.slug) {
+      toast.error("Tour slug is missing");
+      console.error("Error: Missing slug for tour:", tour);
+      return;
+    }
+    
+    setSelectedTourId(tour);
+    setShowTourInfo(true);
+    console.log("Selected Tour Slug:", tour.slug);
+  };
 
   // Show update form modal
   const handleShowUpdateForm = (tour: Tour) => {
@@ -113,7 +120,6 @@ const ToursTable = () => {
     setShowUpdateForm(true);
     console.log("Selected Tour Slug:", tour.slug);
   };
-  
 
   return (
     <div>
@@ -146,15 +152,15 @@ const ToursTable = () => {
           setShowUpdateForm(false);
           setSelectedTourData(null);
         }}
-        >
+      >
         <UpdateTourForm
           slug={selectedTourData?.slug}
           tourData={selectedTourData}
           onTourUpdated={(updatedTour) => {
             setTours((prevTours) =>
               prevTours.map((tour) =>
-                tour.slug === updatedTour.slug ? updatedTour : tour
-              )
+                tour.slug === updatedTour.slug ? updatedTour : tour,
+              ),
             );
             setShowUpdateForm(false);
             toast.success("Tour updated successfully!");
@@ -176,41 +182,79 @@ const ToursTable = () => {
           <table className="w-full table-auto">
             <thead>
               <tr className="bg-gray-2 text-left dark:bg-meta-4">
-                <th className="min-w-[150px] px-4 py-4 font-medium text-black dark:text-white xl:pl-11">#</th>
-                <th className="min-w-[150px] px-4 py-4 font-medium text-black dark:text-white">Tour Name</th>
-                <th className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white">Participants</th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">Price</th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">Days</th>
-                <th className="px-4 py-4 font-medium text-black dark:text-white">Action</th>
+                <th className="min-w-[150px] px-4 py-4 font-medium text-black dark:text-white xl:pl-11">
+                  #
+                </th>
+                <th className="min-w-[150px] px-4 py-4 font-medium text-black dark:text-white">
+                  Tour Name
+                </th>
+                <th className="min-w-[120px] px-4 py-4 font-medium text-black dark:text-white">
+                  Participants
+                </th>
+                <th className="px-4 py-4 font-medium text-black dark:text-white">
+                  Price
+                </th>
+                <th className="px-4 py-4 font-medium text-black dark:text-white">
+                  Days
+                </th>
+                <th className="px-4 py-4 font-medium text-black dark:text-white">
+                  Action
+                </th>
               </tr>
             </thead>
             <tbody>
               {tours.map((tour, index) => (
                 <tr key={tour._id}>
                   <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark xl:pl-11">
-                    <h5 className="font-medium text-black dark:text-white">{index + 1}</h5>
+                    <h5 className="font-medium text-black dark:text-white">
+                      {index + 1}
+                    </h5>
                   </td>
                   <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                    <p className="text-black dark:text-white">{tour.tourName}</p>
+                    <p className="text-black dark:text-white">
+                      {tour.tourName}
+                    </p>
                   </td>
                   <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                    <p className="text-black dark:text-white">{tour.participants}</p>
+                    <p className="text-black dark:text-white">
+                      {tour.participants}
+                    </p>
                   </td>
                   <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                    <p className="text-black dark:text-white">{formatter.format(tour.tourPrice)}</p>
+                    <p className="text-black dark:text-white">
+                      {formatter.format(tour.tourPrice)}
+                    </p>
                   </td>
                   <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                    <p className="text-black dark:text-white">{tour.noOfDays}</p>
+                    <p className="text-black dark:text-white">
+                      {tour.noOfDays}
+                    </p>
                   </td>
                   <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
-                    <button className="text-primary mr-3" onClick={() => handleShowTourInfo(tour._id)}>
+                    <button
+                      className="mr-3 text-primary"
+                      onClick={() => handleShowTourInfo(tour.slug)}
+                    >
                       <FaEye />
                     </button>
-                    <button className="text-primary mr-3" onClick={() => handleShowUpdateForm(tour)}>
+                    <button
+                      className="mr-3 text-primary"
+                      onClick={() => handleShowUpdateForm(tour)}
+                    >
                       <FaPencilAlt />
                     </button>
-                    <button className="text-danger" onClick={() => handleDeleteTour(tour._id)}>
+                    <button
+                      className="text-danger"
+                      onClick={() => handleDeleteTour(tour._id)}
+                    >
                       <FaTrash />
+                    </button>
+                    {/*INclution button  */}
+                    <button
+                      className="text-primary"
+                      onClick={() => handleShowInclusion(tour._id)}
+                    >
+                      <FaI />
                     </button>
                   </td>
                 </tr>
@@ -222,7 +266,7 @@ const ToursTable = () => {
 
       {/* Tour Info Modal */}
       <SideModel isOpen={showTourInfo} onClose={() => setShowTourInfo(false)}>
-        <TourInfo tourId={selectedTourId} />
+        <TourInfo slug={selectedTourData?.slug} />
       </SideModel>
 
       <ToastContainer />

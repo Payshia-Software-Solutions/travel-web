@@ -5,7 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import FloatingLabelInput from "../Input";
 
 function UpdateTourForm({ slug }) {
-  console.log(slug);
+  
   const [formData, setFormData] = useState({
     tourName: "",
     highlightText: "",

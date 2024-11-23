@@ -12,7 +12,6 @@ import TourInfo from "./TourInfo";
 import CreateInclusion from "./CreateInclusion"; // Import Inclusion component
 import Swal from "sweetalert2";
 import "./styles.css";
-import { FaI } from "react-icons/fa6";
 import UpdateTourForm from "./UpdateTourForm";
 
 const ToursTable = () => {
@@ -105,10 +104,16 @@ const ToursTable = () => {
 
   // Show update form modal
   const handleShowUpdateForm = (tour: Tour) => {
+    if (!tour.slug) {
+      toast.error("Tour slug is missing. Cannot update this tour.");
+      console.error("Error: Missing slug for tour:", tour);
+      return;
+    }
     setSelectedTourData(tour);
     setShowUpdateForm(true);
-    console.log(tour.slug);
+    console.log("Selected Tour Slug:", tour.slug);
   };
+  
 
   return (
     <div>
@@ -141,8 +146,9 @@ const ToursTable = () => {
           setShowUpdateForm(false);
           setSelectedTourData(null);
         }}
-      >
+        >
         <UpdateTourForm
+          slug={selectedTourData?.slug}
           tourData={selectedTourData}
           onTourUpdated={(updatedTour) => {
             setTours((prevTours) =>

@@ -7,10 +7,10 @@ import DayPlan from "./DayPlan";
 import Tabs from "../Tabs/Tabs";
 
 interface TourInfoProps {
-  tourId: string;
+  slug: string;
 }
 
-const TourInfo: React.FC<TourInfoProps> = ({ tourId }) => {
+const TourInfo: React.FC<TourInfoProps> = ({ slug }) => {
   const [tour, setTour] = useState<Tour | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -20,15 +20,12 @@ const TourInfo: React.FC<TourInfoProps> = ({ tourId }) => {
   useEffect(() => {
     const fetchTour = async () => {
       try {
-        const response = await fetch(
-          `${config.API_BASE_URL}/api/tours/${tourId}`,
-        );
+        const response = await fetch(`${config.API_BASE_URL}/api/tours/${slug}`);
         if (!response.ok) {
           throw new Error("Failed to fetch tour details");
         }
         const data = await response.json();
         setTour(data);
-        // Fetch the category name if the tour data is available
         if (data.tourCategory) {
           fetchCategoryName(data.tourCategory);
         }
@@ -42,10 +39,10 @@ const TourInfo: React.FC<TourInfoProps> = ({ tourId }) => {
     const fetchCategoryName = async (categoryId: string) => {
       try {
         const response = await fetch(
-          `${config.API_BASE_URL}/api/tourcategories/${categoryId}`,
+          `${config.API_BASE_URL}/api/tourcategories/${categoryId}`
         );
         if (!response.ok) {
-          // throw new Error("Failed to fetch category details");
+          throw new Error("Failed to fetch category details");
         }
         const categoryData = await response.json();
         setCategoryName(categoryData.categoryName);
@@ -55,19 +52,12 @@ const TourInfo: React.FC<TourInfoProps> = ({ tourId }) => {
     };
 
     fetchTour();
-  }, [tourId]);
+  }, [slug]);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+  if (!tour) return <div>No tour details available</div>;
 
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
-
-  if (!tour) {
-    return <div>No tour details available</div>;
-  }
 
   return (
     <div className="mx-auto my-8 rounded-lg bg-white p-6">

@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import Breadcrumb from "../Breadcrumbs/Breadcrumb";
 import { Tour } from "@/types/tours";
 import CreateTourForm from "./createTourForm";
-import UpdateTourForm from "./UpdateTourForm";
 import SideModel from "../Modal/SideModel";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -13,8 +12,8 @@ import TourInfo from "./TourInfo";
 import CreateInclusion from "./CreateInclusion"; // Import Inclusion component
 import Swal from "sweetalert2";
 import "./styles.css";
+import UpdateTourForm from "./UpdateTourForm";
 import { FaI } from "react-icons/fa6";
-
 const ToursTable = () => {
   const formatter = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -26,9 +25,11 @@ const ToursTable = () => {
   const [showUpdateForm, setShowUpdateForm] = useState(false);
   const [showInclusionForm, setShowInclusionForm] = useState(false);
   const [showTourInfo, setShowTourInfo] = useState(false);
-  const [selectedTourId, setSelectedTourId] = useState<string | null>(null); // Added state to store the selected tour id
-  const [selectedTourData, setSelectedTourData] = useState<Tour | null>(null); // Store selected tour data for update
 
+  const [selectedTourId, setSelectedTourId] = useState<string | null>(null);
+  const [selectedTourData, setSelectedTourData] = useState<Tour | null>(null);
+
+  // Fetch tours from the server
   const fetchTours = () => {
     fetch(`${config.API_BASE_URL}/api/tours`)
       .then((response) => {
@@ -48,22 +49,11 @@ const ToursTable = () => {
 
   useEffect(() => {
     fetchTours();
+    const interval = setInterval(fetchTours, 10000); // Poll every 10 seconds
+    return () => clearInterval(interval); // Clear interval on component unmount
   }, []);
 
-  const handleShowTourInfo = (tourId: string) => {
-    setSelectedTourId(tourId); // Set the selected tour id for viewing
-    setShowTourInfo(true);
-  };
-
-  const handleEditTour = (tourId: string) => {
-    const tour = tours.find((tour) => tour._id === tourId);
-    if (tour) {
-      setSelectedTourData(tour);
-      setEditMode(true);
-      setShowCreateForm(true);
-    }
-  };
-
+  // Delete a tour
   const handleDeleteTour = async (tourId: string) => {
     const tour = tours.find((tour) => tour._id === tourId);
     if (tour) {
@@ -100,31 +90,35 @@ const ToursTable = () => {
     }
   };
 
+  // Show inclusion modal
   const handleShowInclusion = (tourId: string) => {
-    setSelectedTourId(tourId); // Set the selected tour id for inclusion form
+    setSelectedTourId(tourId);
     setShowInclusionForm(true);
   };
-
-  const handleShowUpdateForm = (tour: Tour) => {
-    setSelectedTourId(tour._id); // Set the selected tour id
-    setSelectedTourData(tour); // Set the selected tour data
-    setShowUpdateForm(true); // Open the UpdateTourForm modal
-  };
-
-  const handleTourCreated = (newTour: Tour) => {
-    if (editMode) {
-      setTours((prevTours) =>
-        prevTours.map((tour) => (tour._id === newTour._id ? newTour : tour)),
-      );
-    } else {
-      setTours((prevTours) => [...prevTours, newTour]);
+  // Show tour info modal
+  const handleShowTourInfo = (tour: Tour) => {
+    if (!tour.slug) {
+      toast.error("Tour slug is missing");
+      console.error("Error: Missing slug for tour:", tour);
+      return;
     }
-    setShowCreateForm(false);
-    setEditMode(false);
-    setSelectedTourData(null);
+
+    setSelectedTourId(tour);
+    setShowTourInfo(true);
+    console.log("Selected Tour Slug:", tour.slug);
   };
 
-  // console.log(selectedTourData);
+  // Show update form modal
+  const handleShowUpdateForm = (tour: Tour) => {
+    if (!tour.slug) {
+      toast.error("Tour slug is missing. Cannot update this tour.");
+      console.error("Error: Missing slug for tour:", tour);
+      return;
+    }
+    setSelectedTourData(tour);
+    setShowUpdateForm(true);
+    console.log("Selected Tour Slug:", tour.slug);
+  };
 
   return (
     <div>
@@ -135,23 +129,53 @@ const ToursTable = () => {
         onClick={() => setShowCreateForm(true)}
       />
 
+      {/* Create Tour Form */}
       <SideModel
         isOpen={showCreateForm}
         onClose={() => setShowCreateForm(false)}
       >
         <CreateTourForm
           tourData={selectedTourData}
-          onTourCreated={handleTourCreated}
+          onTourCreated={(newTour) => {
+            setTours((prevTours) => [...prevTours, newTour]);
+            setShowCreateForm(false);
+            toast.success("Tour created successfully!");
+          }}
         />
       </SideModel>
 
+      {/* Update Tour Form */}
+      <SideModel
+        isOpen={showUpdateForm}
+        onClose={() => {
+          setShowUpdateForm(false);
+          setSelectedTourData(null);
+        }}
+      >
+        <UpdateTourForm
+          slug={selectedTourData?.slug}
+          tourData={selectedTourData}
+          onTourUpdated={(updatedTour) => {
+            setTours((prevTours) =>
+              prevTours.map((tour) =>
+                tour.slug === updatedTour.slug ? updatedTour : tour,
+              ),
+            );
+            setShowUpdateForm(false);
+            toast.success("Tour updated successfully!");
+          }}
+        />
+      </SideModel>
+
+      {/* Inclusion Form */}
       <SideModel
         isOpen={showInclusionForm}
         onClose={() => setShowInclusionForm(false)}
       >
-        <CreateInclusion tourId={selectedTourId} /> {/* Pass selectedTourId */}
+        <CreateInclusion tourId={selectedTourId} />
       </SideModel>
 
+      {/* Tours Table */}
       <div className="rounded-sm border border-stroke bg-white px-5 pb-2.5 pt-6 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
         <div className="max-w-full overflow-x-auto">
           <table className="w-full table-auto">
@@ -207,25 +231,26 @@ const ToursTable = () => {
                   </td>
                   <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                     <button
-                      className="btn btn-info mx-1"
-                      onClick={() => handleShowTourInfo(tour._id)}
+                      className="mr-3 text-primary"
+                      onClick={() => handleShowTourInfo(tour.slug)}
                     >
                       <FaEye />
                     </button>
                     <button
-                      className="btn btn-info mx-1"
-                      onClick={() => handleEditTour(tour._id)}
+                      className="mr-3 text-primary"
+                      onClick={() => handleShowUpdateForm(tour)}
                     >
                       <FaPencilAlt />
                     </button>
                     <button
-                      className="btn btn-info mx-1"
+                      className="text-danger"
                       onClick={() => handleDeleteTour(tour._id)}
                     >
                       <FaTrash />
                     </button>
+                    {/*INclution button  */}
                     <button
-                      className="btn btn-info mx-1"
+                      className="text-primary"
                       onClick={() => handleShowInclusion(tour._id)}
                     >
                       <FaI />
@@ -238,17 +263,12 @@ const ToursTable = () => {
         </div>
       </div>
 
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
+      {/* Tour Info Modal */}
+      <SideModel isOpen={showTourInfo} onClose={() => setShowTourInfo(false)}>
+        <TourInfo slug={selectedTourData?.slug} />
+      </SideModel>
+
+      <ToastContainer />
     </div>
   );
 };

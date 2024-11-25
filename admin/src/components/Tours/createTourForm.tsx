@@ -5,6 +5,16 @@ import "react-toastify/dist/ReactToastify.css";
 
 import FloatingLabelInput from "../Input";
 
+// Slug generation function
+const generateSlug = (text) => {
+  return text
+    .toLowerCase()
+    .replace(/\s+/g, "-") // Replace spaces with hyphens
+    .replace(/[^\w\-]+/g, "") // Remove non-alphanumeric characters
+    .replace(/\-\-+/g, "-") // Remove duplicate hyphens
+    .trim("-"); // Remove leading/trailing hyphens
+};
+
 function CreateTourForm({ initialData = null, onSubmitSuccess }) {
   const [formData, setFormData] = useState({
     tourName: "",
@@ -17,6 +27,7 @@ function CreateTourForm({ initialData = null, onSubmitSuccess }) {
     tourDetails: "",
     dayPlans: [],
     tourCover: "", // For creating or updating
+    slug: "", // Add a slug field
   });
 
   useEffect(() => {
@@ -25,16 +36,23 @@ function CreateTourForm({ initialData = null, onSubmitSuccess }) {
         ...initialData,
         tags: initialData.tags?.join(", ") || "",
         tourCover: "", // Reset to allow new uploads
+        slug: initialData.slug || "", // Preserve the existing slug
       });
     }
   }, [initialData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    setFormData((prevData) => {
+      const newFormData = { ...prevData, [name]: value };
+      
+      // Automatically generate slug when tourName changes
+      if (name === "tourName") {
+        newFormData.slug = generateSlug(value);
+      }
+
+      return newFormData;
+    });
   };
 
   const handleFileChange = (e) => {
@@ -100,6 +118,7 @@ function CreateTourForm({ initialData = null, onSubmitSuccess }) {
     const createdBy = "66ae7fe4a9498f09f37f01cc";
     formDataObj.append("createdBy", createdBy);
     formDataObj.append("tourCategory", formData.category);
+    formDataObj.append("slug", formData.slug); // Append the slug
 
     try {
       const endpoint = initialData
@@ -128,6 +147,7 @@ function CreateTourForm({ initialData = null, onSubmitSuccess }) {
           tourDetails: "",
           dayPlans: [],
           tourCover: "",
+          slug: "", // Reset slug after submission
         });
         if (onSubmitSuccess) onSubmitSuccess();
       } else {

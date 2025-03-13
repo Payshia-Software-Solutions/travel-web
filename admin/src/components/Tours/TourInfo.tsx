@@ -20,7 +20,9 @@ const TourInfo: React.FC<TourInfoProps> = ({ slug }) => {
   useEffect(() => {
     const fetchTour = async () => {
       try {
-        const response = await fetch(`${config.API_BASE_URL}/api/tours/${slug}`);
+        const response = await fetch(
+          `${config.API_BASE_URL}/api/tours/${slug}`,
+        );
         if (!response.ok) {
           throw new Error("Failed to fetch tour details");
         }
@@ -39,7 +41,7 @@ const TourInfo: React.FC<TourInfoProps> = ({ slug }) => {
     const fetchCategoryName = async (categoryId: string) => {
       try {
         const response = await fetch(
-          `${config.API_BASE_URL}/api/tourcategories/${categoryId}`
+          `${config.API_BASE_URL}/api/tourcategories/${categoryId}`,
         );
         if (!response.ok) {
           throw new Error("Failed to fetch category details");
@@ -57,7 +59,6 @@ const TourInfo: React.FC<TourInfoProps> = ({ slug }) => {
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
   if (!tour) return <div>No tour details available</div>;
-
 
   return (
     <div className="mx-auto my-8 rounded-lg bg-white p-6">
@@ -179,6 +180,7 @@ const TourInfo: React.FC<TourInfoProps> = ({ slug }) => {
                 <div className="mt-3 grid grid-cols-2 gap-4">
                   {tour.tourSchedule.map((day, index) => (
                     <DayPlan
+                      key={index}
                       day={day.dayId}
                       dayTitle={day.dayTitle}
                       value={day.dayPlan}

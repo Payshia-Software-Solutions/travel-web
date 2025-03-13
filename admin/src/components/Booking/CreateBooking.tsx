@@ -9,6 +9,7 @@ import FloatingLabelInput from "../Input";
 const CreateBooking: React.FC = () => {
   const [bookingData, setBookingData] = useState<Booking>({
     id: 0, // Provide a default value
+    _id: "",
     tour: "", // Default tour name
     name: "",
     totDistance: 0, // Default total distance
@@ -55,6 +56,7 @@ const CreateBooking: React.FC = () => {
       toast.success("Booking created successfully!");
       setBookingData({
         id: 0, // Provide a default value for `id`
+        _id: "",
         tour: "", // Provide a default value for `tour`
         name: "",
         totDistance: 0, // Default value for `totDistance`

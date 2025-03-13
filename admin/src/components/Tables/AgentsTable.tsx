@@ -1,20 +1,16 @@
 import Breadcrumb from "../Breadcrumbs/Breadcrumb";
 import { Agent } from "@/types/agents";
 
-const packageData: AGENTS[] = [
+const packageData: Agent[] = [
   {
+    _id: "555",
     no: 1,
     name: "John Doe",
     country: "USA",
     address: "123 Main St, New York City, NY",
     contactNo: "+1 555-123-4567",
-  },
-  {
-    no: 2,
-    name: "Jane Smith",
-    country: "Canada",
-    address: "456 Elm St, Toronto, ON",
-    contactNo: "+1 555-987-6543",
+    email: "123 Main St, New York City, NY",
+    phone: "+1 555-123-4567",
   },
 ];
 

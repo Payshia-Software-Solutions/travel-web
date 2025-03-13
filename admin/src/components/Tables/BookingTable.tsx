@@ -94,7 +94,7 @@ const BookingTable = () => {
 
   return (
     <div>
-         <Breadcrumb
+      <Breadcrumb
         pageName="Tours"
         pageDesc="Find out the status of your bookings"
         btnName="+ Create Tour"
@@ -175,7 +175,7 @@ const BookingTable = () => {
                   </td>
                   <td className="border-b border-[#eee] px-4 py-5 dark:border-strokedark">
                     <div className="flex items-center space-x-3.5">
-                    <button
+                      <button
                         onClick={() => handleUpdateClick(booking)}
                         className="btn btn-info mx-1"
                       >
@@ -197,9 +197,13 @@ const BookingTable = () => {
 
         <SideModel isOpen={isSideModelOpen} onClose={handleFormClose}>
           {isCreateTour ? (
-            <CreateTourForm onClose={handleFormClose} />
+            <CreateTourForm />
           ) : (
-            <UpdateBookingForm booking={selectedBooking}     itemData={selectedBooking} onClose={handleFormClose} />
+            <UpdateBookingForm
+              // booking={selectedBooking}
+              itemData={selectedBooking}
+              // onClose={handleFormClose}
+            />
           )}
         </SideModel>
       </div>

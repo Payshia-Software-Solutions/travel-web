@@ -8,6 +8,14 @@ const util = require("util"); // Import util
 // Multer Configuration
 const upload = multer({ dest: "temp/" }); // Temporary upload location
 
+const cloudinary = require("cloudinary").v2;
+
+cloudinary.config({
+  cloud_name: "defjoak6i",
+  api_key: "393433223266434",
+  api_secret: "U8q4RPLfAVnPtZOhSRdGym5lk1s",
+});
+
 // Helper Function to Save Files
 const saveFile = (file, folder) => {
   const fileName = `${Date.now()}-${file.originalname}`;
@@ -24,6 +32,8 @@ const saveFile = (file, folder) => {
       recursive: true,
     });
   }
+
+  cloudinary.uploader.upload(file.path, { folder: "tours" });
 
   fs.renameSync(file.path, uploadPath); // Move the file to the desired location
   return `uploads/${folder}/${fileName}`; // Return the relative path

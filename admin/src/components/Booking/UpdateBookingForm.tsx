@@ -7,7 +7,7 @@ import config from "@/config";
 import FloatingLabelInput from "../Input";
 
 interface UpdateBookingFormProps {
-  onUpdated: (updatedBooking: Booking) => void;
+  onUpdated?: (updatedBooking: Booking) => void;
   itemData?: Booking | any;
 }
 
@@ -59,7 +59,7 @@ const UpdateBookingForm: React.FC<UpdateBookingFormProps> = ({
       }
 
       const updatedBooking = await response.json();
-      onUpdated(updatedBooking);
+      // onUpdated(updatedBooking);
       toast.success(
         `Booking ${bookingData._id ? "updated" : "created"} successfully!`,
       );

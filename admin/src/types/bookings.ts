@@ -1,6 +1,6 @@
 export type Booking = {
   id: number;
-  _id?: string;
+  _id: string;
   tour: string;
   name: string;
   totDistance: number;
